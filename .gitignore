@@ -1,0 +1,59 @@
+# dev scripts
+/dev
+
+
+/node_modules
+.pnp
+.pnp.js
+
+# Build artifacts
+/dist
+/build
+/out
+/es
+/lib
+/tmp
+/temp
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.log
+
+# Environment variables
+.env
+.env.development
+.env.production
+.env.local
+.env.*.local
+
+# Editor and IDE specific files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.DS_Store
+Thumbs.db
+
+# Test coverage
+/coverage
+
+# npm package manager cache
+.npm
+
+# Yarn package manager cache
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.yml
+
+# Miscellaneous
+*.tgz
+*.zip
+*.rar
+*.7z
+*.gz
+*.patch
+.nyc_output
+
