@@ -1,0 +1,191 @@
+[{
+    "available": true, 
+    "description": "בירה ישראלית קלאסית עם טעם עשיר ומר. מושלמת לליווי ארוחה או לשעת ערב נעימה.", 
+    "image": "https://tomhawk.co.il/wp-content/uploads/2023/11/9beer-goldstart_crop.webp?w=400&h=300&fit=crop", 
+    "prices": [
+        {
+            "price": 3, 
+            "size": "330 מ״ל"
+        }
+    ], 
+    "id": 1, 
+    "name": "גולדסטאר",
+    "category": "בירות"
+},
+{
+    "available": true, 
+    "description": "בירה בהירה וקלה עם טעם עדין. מתאימה למי שמחפש בירה קלילה ונעימה.", 
+    "image": "https://www.banamashkaot.co.il/wp-content/uploads/2025/06/42149996.png?w=400&h=300&fit=crop", 
+    "prices": [
+
+        {
+            "price": 2, 
+            "size": "250 מ״ל"
+        }
+    ], 
+    "id": 2, 
+    "name": "בקס",
+    "category": "בירות"
+},
+{
+    "available": true, 
+    "description": "בירה כהה אירית מסורתית עם טעם עשיר וקרמי. מושלמת לחובבי בירות כההות.", 
+    "image": "https://www.banamashkaot.co.il/wp-content/uploads/2025/06/5000213014905.png?w=400&h=300&", 
+    "prices": [
+        {
+            "price": 4, 
+            "size": "500 מ״ל"
+        }
+    ], 
+    "id": 3, 
+    "name": "גינס",
+    "category": "בירות"
+},
+{
+    "available": true, 
+    "description": "בירה מקסיקנית קלילה עם טעם טרופי עדין. מוגשת עם פרוסת לימון.", 
+    "image": "https://www.banamashkaot.co.il/wp-content/uploads/2025/06/75041670.png?w=400&h=300&fit=scale", 
+    "prices": [
+        {
+            "price": 2, 
+            "size": "225 מ״ל"
+        }
+    ], 
+    "id": 4, 
+    "name": "קורונה",
+    "category": "בירות"
+},
+{
+    "available": true, 
+    "description": "קוקטייל מיוחד של הבית המורכב מתערובת סודית של ליקרים ומיצים טריים. טעם מתוק ומרענן.", 
+    "image": "https://www.sipandfeast.com/wp-content/uploads/2019/07/limoncello-spritz-recipe-7.jpg?w=400&h=300&fit=scale", 
+    "prices": [
+        {
+            "price": 2, 
+            "size": "צ׳ייסר"
+        }, 
+        {
+            "price": 3, 
+            "size": "כוס"
+        }
+    ], 
+    "id": 5, 
+    "name": "קוקטייל הבית",
+    "category": "משקאות חריפים וקוקטיילים"
+},
+{
+    "available": true, 
+    "description": "בירה אמריקאית קלאסית עם טעם נקי וקליל. בירה פופולרית ומוכרת ברחבי העולם.", 
+    "image": "https://m.media-amazon.com/images/I/51pZzOteTyL._AC_SX679_.jpg", 
+    "prices": [
+ 
+        {
+            "price": 2, 
+            "size": "330 מ״ל"
+        }
+    ], 
+    "id": 6, 
+    "name": "באדוויזר",
+    "category": "בירות"
+},
+{
+    "available": true, 
+    "description": "בירה הולנדית מסורתית עם טעם עשיר ומריר. בירה איכותית עם היסטוריה ארוכה.", 
+    "image": "https://jayswines.com/wp-content/uploads/2022/01/Hollandia-5.jpg", 
+    "prices": [
+        {
+            "price": 3, 
+            "size": "500 מ״ל"
+        }
+    ], 
+    "id": 7, 
+    "name": "הולנדיה",
+    "category": "בירות"
+},
+{
+    "available": true, 
+    "description": "בירה בלגית קלאסית עם טעם עדין ומאוזן. בירה פילסנר איכותית ופופולרית.", 
+    "image": "", 
+    "prices": [
+        {
+            "price": 3, 
+            "size": "330 מ״ל"
+        }
+    ], 
+    "id": 8, 
+    "name": "סטלה",
+    "category": "בירות"
+},
+{
+    "available": true, 
+    "description": "בירה בלגית מיוחדת עם טעם פירותי ומתוק. בירה ארטיזנלית עם אופי ייחודי.", 
+    "image": "", 
+    "prices": [
+        {
+            "price": 3, 
+            "size": "330 מ״ל"
+        }
+    ], 
+    "id": 9, 
+    "name": "ליפמנס",
+    "category": "בירות"
+},
+{
+    "available": true, 
+    "description": "בירת חיטה גרמנית מסורתית עם טעם עשיר וקרמי. בירה לבנה איכותית עם ארומה מיוחדת.", 
+    "image": "", 
+    "prices": [
+
+        {
+            "price": 4, 
+            "size": "500 מ״ל"
+        }
+    ], 
+    "id": 10, 
+    "name": "פאולנר חיטה",
+    "category": "בירות"
+},
+{
+    "available": true, 
+    "description": "יין לבן איכותי, מושלם לליווי ארוחות קלילות או לשעת ערב נעימה.", 
+    "image": "", 
+    "prices": [
+        {
+            "price": 3, 
+            "size": "כוס"
+        }
+    ], 
+    "id": 11, 
+    "name": "יין לבן",
+    "category": "יין"
+},
+{
+    "available": true, 
+    "description": "יין אדום עשיר ועמוק, מושלם לליווי בשרים וארוחות חמות.", 
+    "image": "", 
+    "prices": [
+        {
+            "price": 3, 
+            "size": "כוס"
+        }
+    ], 
+    "id": 12, 
+    "name": "יין אדום",
+    "category": "יין"
+},
+{
+    "available": true, 
+    "description": "בירת חיטה בלגית", 
+    "image": "", 
+    "prices": [
+
+        {
+            "price": 3, 
+            "size": "500 מ״ל"
+        }
+    ], 
+    "id": 13, 
+    "name": "בלאנש",
+    "category": "בירות"
+}
+]

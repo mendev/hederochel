@@ -1,0 +1,98 @@
+import { useState, useEffect } from 'react';
+import menuItemsData from '../data/menuItems.json';
+
+interface price {
+  size: string;
+  price: number;
+}
+
+interface MenuItem {
+  id: number;
+  name: string;
+  prices: [price];
+  image: string;
+  description: string;
+  available: boolean;
+}
+
+const menuItems = menuItemsData as MenuItem[];
+
+interface ItemModalProps {
+  item: MenuItem | null;
+  onClose: () => void;
+}
+
+function ItemModal({ item, onClose }: ItemModalProps) {
+  if (!item) return null;
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose} aria-label="סגור">
+          ×
+        </button>
+        <div className="modal-image">
+          <img src={item.image} alt={item.name} />
+        </div>
+        <div className="modal-info">
+          <h2 className="modal-title">{item.name}</h2>
+          {item.prices.map((serving) => (
+           <div className="modal-price">{serving.size} - {serving.price.toFixed(0)} ניקובים </div>
+          ))}
+          <div className="modal-description">
+            <h3>תיאור:</h3>
+            <p>{item.description}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MenuPage() {
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+
+  // Close modal on Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedItem) {
+        setSelectedItem(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [selectedItem]);
+
+  return (
+    <div className="page-content">
+      <h2>תפריט</h2>
+      
+      <div className="menu-grid">
+        {menuItems.map((item) => (
+          item.available && (
+          <div key={item.id}  className="menu-item" onClick={() => setSelectedItem(item)}>
+            <div className="menu-item-image">
+              <img src={item.image} alt={item.name} />
+            </div>
+            <div className="menu-item-info">
+              <h3 className="menu-item-name">{item.name}</h3>
+              { item.prices.length === 1 ? <div className="menu-item-price">
+                {item.prices[0].size} - {item.prices[0].price.toFixed(0)} ניקובים
+              </div> : <div></div>
+              }
+              </div>
+            </div>
+          )))}
+      </div>
+
+      <ItemModal 
+        item={selectedItem} 
+        onClose={() => setSelectedItem(null)} 
+      />
+    </div>
+  );
+}
+
+export default MenuPage;
+
