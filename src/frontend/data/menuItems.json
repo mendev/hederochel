@@ -43,27 +43,23 @@
 },
 {
     "available": true, 
-    "description": "בירה מקסיקנית קלילה עם טעם טרופי עדין. מוגשת עם פרוסת לימון.", 
-    "image": "https://www.banamashkaot.co.il/wp-content/uploads/2025/06/75041670.png?w=400&h=300&fit=scale", 
+    "description": "לאגר הולנדית קלאסית, קלילה ומרעננת, עם איזון מושלם בין מרירות עדינה לנגיעה מתקתקה. תמיד בחירה בטוחה ונעימה", 
+    "image": "https://alcohol123.co.il/wp-content/uploads/2024/04/1401.jpg", 
     "prices": [
         {
-            "price": 2, 
-            "size": "225 מ״ל"
+            "price": 3, 
+            "size": "330 מ״ל"
         }
     ], 
     "id": 4, 
-    "name": "קורונה",
+    "name": "היינקן",
     "category": "בירות"
 },
 {
     "available": true, 
     "description": "קוקטייל מיוחד של הבית המורכב מתערובת סודית של ליקרים ומיצים טריים. טעם מתוק ומרענן.", 
     "image": "https://www.sipandfeast.com/wp-content/uploads/2019/07/limoncello-spritz-recipe-7.jpg?w=400&h=300&fit=scale", 
-    "prices": [
-        {
-            "price": 2, 
-            "size": "צ׳ייסר"
-        }, 
+    "prices": [ 
         {
             "price": 3, 
             "size": "כוס"
@@ -71,7 +67,7 @@
     ], 
     "id": 5, 
     "name": "קוקטייל הבית",
-    "category": "משקאות חריפים וקוקטיילים"
+    "category": "קוקטיילים"
 },
 {
     "available": true, 
@@ -105,7 +101,7 @@
 {
     "available": true, 
     "description": "בירה בלגית קלאסית עם טעם עדין ומאוזן. בירה פילסנר איכותית ופופולרית.", 
-    "image": "", 
+    "image": "https://alcohol123.co.il/wp-content/uploads/2024/04/%D7%A1%D7%98%D7%9C%D7%94.png", 
     "prices": [
         {
             "price": 3, 
@@ -119,11 +115,11 @@
 {
     "available": true, 
     "description": "בירה בלגית מיוחדת עם טעם פירותי ומתוק. בירה ארטיזנלית עם אופי ייחודי.", 
-    "image": "", 
+    "image": "https://alcohol123.co.il/wp-content/uploads/2024/04/1691.jpg", 
     "prices": [
         {
             "price": 3, 
-            "size": "330 מ״ל"
+            "size": "250 מ״ל"
         }
     ], 
     "id": 9, 
@@ -133,7 +129,7 @@
 {
     "available": true, 
     "description": "בירת חיטה גרמנית מסורתית עם טעם עשיר וקרמי. בירה לבנה איכותית עם ארומה מיוחדת.", 
-    "image": "", 
+    "image": "https://alcohol123.co.il/wp-content/uploads/2024/04/808.jpg", 
     "prices": [
 
         {
@@ -147,8 +143,8 @@
 },
 {
     "available": true, 
-    "description": "יין לבן איכותי, מושלם לליווי ארוחות קלילות או לשעת ערב נעימה.", 
-    "image": "", 
+    "description": " (משתנה) יין לבן קליל לבילוי ערב", 
+    "image": "https://www.totalwine.com/dynamic/x1000,sq/images/106828920/106828920-1-fr.png", 
     "prices": [
         {
             "price": 3, 
@@ -161,8 +157,8 @@
 },
 {
     "available": true, 
-    "description": "יין אדום עשיר ועמוק, מושלם לליווי בשרים וארוחות חמות.", 
-    "image": "", 
+    "description": "יין אדום, מלא ונעים (משתנה)", 
+    "image": "https://media.royaldesign.com/2/spiegelau-salute-red-wine-glass-set-of-4-55-cl-14?w=800&quality=80", 
     "prices": [
         {
             "price": 3, 
@@ -176,7 +172,7 @@
 {
     "available": true, 
     "description": "בירת חיטה בלגית", 
-    "image": "", 
+    "image": "https://vladalina.md/cron/images/1150101148.png", 
     "prices": [
 
         {
@@ -185,7 +181,220 @@
         }
     ], 
     "id": 13, 
-    "name": "בלאנש",
+    "name": "בלאנש חיטה",
     "category": "בירות"
+},
+{
+    "available": true, 
+    "description": "יין אדום מתובל בעדינות עם ניחוחות הדרים ופירות יער, מוגש קר עם קוביות פרי טרי.", 
+    "image": "https://downshiftology.com/wp-content/uploads/2023/11/Red-Sangria-main-500x500.jpg", 
+    "prices": [ 
+        {
+            "price": 3, 
+            "size": "כוס"
+        }
+    ], 
+    "id": 14, 
+    "name": "סנגריה",
+    "category": "קוקטיילים"
+},
+{
+    "available": true, 
+    "description": "אוזו קר כמו שצריך, עם ניחוח אניס שמחזיר ישר לחופשה ביוון", 
+    "image": "https://alcohol123.co.il/wp-content/uploads/2024/04/4975.jpg", 
+    "prices": [ 
+        {
+            "price": 3, 
+            "size": "מנה"
+        },
+        {
+            "price": 2, 
+            "size": "צ׳ייסר"
+        }
+    ], 
+    "id": 15, 
+    "name": "אוזו",
+    "category": "משקאות חריפים"
+},
+{
+    "available": true, 
+    "description": "כוס עראק מרעננת עם קרח ומים — כמו שצריך. טעם ים-תיכוני קלאסי שמחזיר אותך ישר לים", 
+    "image": "https://alcohol123.co.il/wp-content/uploads/2024/04/1321.jpg", 
+    "prices": [ 
+        {
+            "price": 3, 
+            "size": "מנה"
+        },
+        {
+            "price": 2, 
+            "size": "צ׳ייסר"
+        }
+    ], 
+    "id": 16, 
+    "name": "עראק",
+    "category": "משקאות חריפים"
+},
+{
+    "available": true, 
+    "description": "ליקר איטלקי עם טעם מריר-מתוק וצבע אדום בולט. מושלם לפני האוכל או עם סודה ופרוסת תפוז", 
+    "image": "https://alcohol123.co.il/wp-content/uploads/2024/04/32746_Packshots_for_123_Site_a_0024_Campari.png", 
+    "prices": [ 
+        {
+            "price": 3, 
+            "size": "מנה"
+        },
+        {
+            "price": 2, 
+            "size": "צ׳ייסר"
+        }
+    ], 
+    "id": 17, 
+    "name": "קמפארי",
+    "category": "משקאות חריפים"
+},
+{
+    "available": true, 
+    "description": "רעננות צמחים והדרים בבקבוק אחד. למי שאוהב את המשקה שלו עם אופי.", 
+    "image": "https://alcohol123.co.il/wp-content/uploads/2024/04/1270.jpg", 
+    "prices": [ 
+        {
+            "price": 3, 
+            "size": "מנה"
+        },
+        {
+            "price": 2, 
+            "size": "צ׳ייסר"
+        }
+    ], 
+    "id": 18, 
+    "name": "ג׳ין",
+    "category": "משקאות חריפים"
+},
+{
+    "available": true, 
+    "description": "טעם של חופש. מתוק, נוגע בקרמל וקוקוס, ומחזיר אותך לחופים רחוקים.", 
+    "image": "https://alcohol123.co.il/wp-content/uploads/2024/04/1187.jpg", 
+    "prices": [ 
+        {
+            "price": 3, 
+            "size": "מנה"
+        },
+        {
+            "price": 2, 
+            "size": "צ׳ייסר"
+        }
+    ], 
+    "id": 19, 
+    "name": "רום",
+    "category": "משקאות חריפים"
+},
+{
+    "available": true, 
+    "description": "ליקר פירותי עדין עם טעם מתוק וניחוח קיצי. מושלם לשילוב עם סודה או על קרח.", 
+    "image": "https://alcohol123.co.il/wp-content/uploads/2024/04/%D7%A4%D7%99%D7%93%D7%92_-1715.jpg", 
+    "prices": [ 
+        {
+            "price": 3, 
+            "size": "מנה"
+        },
+        {
+            "price": 2, 
+            "size": "צ׳ייסר"
+        }
+    ], 
+    "id": 20, 
+    "name": "פידג׳",
+    "category": "משקאות חריפים"
+},
+{
+    "available": true, 
+    "description": "ליקר גרמני עשיר בעשבים ותבלינים. טעם מתוק-מריר שמגיע ישר ללב (ולבטן).", 
+    "image": "https://alcohol123.co.il/wp-content/uploads/2024/09/%D7%99%D7%92%D7%A8%D7%9E%D7%99%D7%99%D7%A1%D7%98%D7%A8_200_%D7%9B%D7%A9%D7%A8.jpg", 
+    "prices": [ 
+        {
+            "price": 3, 
+            "size": "מנה"
+        },
+        {
+            "price": 2, 
+            "size": "צ׳ייסר"
+        }
+    ], 
+    "id": 21, 
+    "name": "יגרמייסטר",
+    "category": "משקאות חריפים"
+},
+{
+    "available": true, 
+    "description": "קלאסיקה קרירה ונקייה. בסיס לכל קוקטייל טוב, או סתם צ׳ייסר שמח.", 
+    "image": "https://alcohol123.co.il/wp-content/uploads/2024/04/1173.png", 
+    "prices": [ 
+        {
+            "price": 3, 
+            "size": "מנה"
+        },
+        {
+            "price": 2, 
+            "size": "צ׳ייסר"
+        }
+    ], 
+    "id": 22, 
+    "name": "וודקה",
+    "category": "משקאות חריפים"
+},
+{
+    "available": true, 
+    "description": "קלאסי וחמים, עם ארומה של עץ וקרמל. בדיוק מה שצריך אחרי יום ארוך.", 
+    "image": "https://alcohol123.co.il/wp-content/uploads/2024/04/2200.jpg", 
+    "prices": [ 
+        {
+            "price": 3, 
+            "size": "מנה"
+        },
+        {
+            "price": 2, 
+            "size": "צ׳ייסר"
+        }
+    ], 
+    "id": 23, 
+    "name": "ויסקי",
+    "category": "משקאות חריפים"
+},
+{
+    "available": true, 
+    "description": "אלגנטי, עמוק ובעל טעם עשיר. ללגימה איטית ונינוחה", 
+    "image": "https://alcohol123.co.il/wp-content/uploads/2024/04/%D7%94%D7%A0%D7%A1%D7%99-VS-1.jpg", 
+    "prices": [ 
+        {
+            "price": 3, 
+            "size": "מנה"
+        },
+        {
+            "price": 2, 
+            "size": "צ׳ייסר"
+        }
+    ], 
+    "id": 24, 
+    "name": "קוניאק",
+    "category": "משקאות חריפים"
+},
+{
+    "available": true, 
+    "description": "חום, מלח, לימון וחיוך גדול. רוח מקסיקנית אמיתית שפותחת כל ערב.", 
+    "image": "https://alcohol123.co.il/wp-content/uploads/2025/02/1247.jpg", 
+    "prices": [ 
+        {
+            "price": 3, 
+            "size": "מנה"
+        },
+        {
+            "price": 2, 
+            "size": "צ׳ייסר"
+        }
+    ], 
+    "id": 25, 
+    "name": "טקילה",
+    "category": "משקאות חריפים"
 }
+
 ]
