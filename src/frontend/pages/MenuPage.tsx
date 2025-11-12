@@ -157,6 +157,8 @@ function MenuPage() {
 })}
 
   <ItemModal item={selectedItem} onClose={() => setSelectedItem(null)} />
+    <p>ייתכנו שינויים במוצרים ובהגשה בהתאם למלאי. התמונות והפריטים בתפריט להמחשה בלבד.</p>
+
 </div>
 
   );
