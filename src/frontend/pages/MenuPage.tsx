@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 // import menuItemsData from '../data/menuItems.json';
 import { supabase } from '../data/supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
-import { col, menu } from 'framer-motion/client';
+// import { col, menu } from 'framer-motion/client';
 
 
 
@@ -46,9 +46,9 @@ const dbItems = products.data as DbItem[];
 //   new Set(menuItems.map((item) => item.category))
 // );
 
-const dbCategories = Array.from(
-  new Set(dbItems.map((item) => item.category))
-)
+// const dbCategories = Array.from(
+//   new Set(dbItems.map((item) => item.category))
+// )
 
 
 
