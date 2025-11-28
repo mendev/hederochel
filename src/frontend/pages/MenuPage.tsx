@@ -1,39 +1,74 @@
+
 import { useState, useEffect } from 'react';
-import menuItemsData from '../data/menuItems.json';
+// import menuItemsData from '../data/menuItems.json';
+import { supabase } from '../data/supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
+import { col, menu } from 'framer-motion/client';
+
+
+
+
+// Data State
+  const products = await supabase.from('products').select('*').order('name_he');
+
 
 interface price {
   size: string;
   price: number;
 }
 
-interface MenuItem {
+interface DbItem {
   id: number;
-  name: string;
+  name_he: string;
+  description_he: string;
   category: string;
-  prices: price[];
-  image: string;
-  description: string;
-  available: boolean;
+  servings: price[];
+  is_available: boolean;
+  is_stock_item: boolean;
+  image_url: string;
+  created_at: string;
 }
 
-const menuItems = menuItemsData as MenuItem[];
+// interface MenuItem {
+//   id: number;
+//   name: string;
+//   category: string;
+//   prices: price[];
+//   image: string;
+//   description: string;
+//   available: boolean;
+// }
 
-const categories = Array.from(
-  new Set(menuItems.map((item) => item.category))
-);
+const dbItems = products.data as DbItem[];
+// const menuItems = menuItemsData as MenuItem[];
+
+// const categories = Array.from(
+//   new Set(menuItems.map((item) => item.category))
+// );
+
+const dbCategories = Array.from(
+  new Set(dbItems.map((item) => item.category))
+)
 
 
 
+// const groupedItems = menuItems.reduce((groups, item) => {
+//   if (!item.available) return groups;
+//   if (!groups[item.category]) groups[item.category] = [];
+//   groups[item.category].push(item);
+//   return groups;
+// }, {} as Record<string, MenuItem[]>);
 
-const groupedItems = menuItems.reduce((groups, item) => {
-  if (!item.available) return groups;
+const groupedDbItems = dbItems.reduce((groups, item) => {
+  if (!item.is_available) return groups;
   if (!groups[item.category]) groups[item.category] = [];
   groups[item.category].push(item);
   return groups;
-}, {} as Record<string, MenuItem[]>);
+}, {} as Record<string, DbItem[]>);
+
+
 interface ItemModalProps {
-  item: MenuItem | null;
+  item: DbItem | null;
   onClose: () => void;
 }
 
@@ -47,16 +82,16 @@ function ItemModal({ item, onClose }: ItemModalProps) {
           ×
         </button>
         <div className="modal-image">
-          <img src={item.image} alt={item.name} />
+          <img src={item.image_url} alt={item.name_he} />
         </div>
         <div className="modal-info">
-          <h2 className="modal-title">{item.name}</h2>
-          {item.prices.map((serving) => (
+          <h2 className="modal-title">{item.name_he}</h2>
+          {item.servings.map((serving) => (
            <div className="modal-price">{serving.size} - {serving.price.toFixed(0)} ניקובים </div>
           ))}
           <div className="modal-description">
             <h3>תיאור:</h3>
-            <p>{item.description}</p>
+            <p>{item.description_he}</p>
           </div>
         </div>
       </div>
@@ -65,9 +100,9 @@ function ItemModal({ item, onClose }: ItemModalProps) {
 }
 
 function MenuPage() {
-  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const [selectedItem, setSelectedItem] = useState<DbItem | null>(null);
 
-  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set(categories)); // open all initially
+  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set()); // close all initially
 
   const toggleCategory = (category: string) => {
   setOpenCategories(prev => {
@@ -103,7 +138,7 @@ function MenuPage() {
   />
   <h2 className="menu-title">תפריט</h2>
 </div>
-  {Object.entries(groupedItems).map(([category, items]) => {
+  {Object.entries(groupedDbItems).map(([category, items]) => {
   const isOpen = openCategories.has(category);
 
   return (
@@ -112,7 +147,7 @@ function MenuPage() {
         className="category-header"
         onClick={() => toggleCategory(category)}
       >
-        <h3 className="category-title">{isOpen ? '–' : '+'} {category}</h3>
+        <h3 className="category-title">{isOpen ? "↓" : '←'} {category}</h3>
         {/* <span className="category-toggle">
           
         </span> */}
@@ -136,13 +171,13 @@ function MenuPage() {
             onClick={() => setSelectedItem(item)}
           >
             <div className="menu-item-image">
-              <img src={item.image} alt={item.name} />
+              <img src={item.image_url} alt={item.name_he} />
             </div>
             <div className="menu-item-info">
-              <h3 className="menu-item-name">{item.name}</h3>
-              {item.prices.length === 1 && (
+              <h3 className="menu-item-name">{item.name_he}</h3>
+              {item.servings.length === 1 && (
                 <div className="menu-item-price">
-                  {item.prices[0].size} - {item.prices[0].price.toFixed(0)} ניקובים
+                  {item.servings[0].size} - {item.servings[0].price.toFixed(0)} ניקובים
                 </div>
               )}
             </div>
