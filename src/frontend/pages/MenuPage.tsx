@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import menuItemsData from '../data/menuItems.json';
+// import menuItemsData from '../data/menuItems.json';
 import { supabase } from '../data/supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import { col, menu } from 'framer-motion/client';
@@ -29,15 +29,15 @@ interface DbItem {
   created_at: string;
 }
 
-interface MenuItem {
-  id: number;
-  name: string;
-  category: string;
-  prices: price[];
-  image: string;
-  description: string;
-  available: boolean;
-}
+// interface MenuItem {
+//   id: number;
+//   name: string;
+//   category: string;
+//   prices: price[];
+//   image: string;
+//   description: string;
+//   available: boolean;
+// }
 
 const dbItems = products.data as DbItem[];
 // const menuItems = menuItemsData as MenuItem[];
