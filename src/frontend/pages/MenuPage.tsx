@@ -1,17 +1,12 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 // import menuItemsData from '../data/menuItems.json';
 import { supabase } from '../data/supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
-import { col, menu } from 'framer-motion/client';
-
-
-
+// import { col, menu } from 'framer-motion/client';
 
 // Data State
-  const products = await supabase.from('products').select('*').order('name_he');
-
-
+  // const products = await supabase.from('products').select('*').order('name_he');
 interface price {
   size: string;
   price: number;
@@ -39,16 +34,16 @@ interface DbItem {
 //   available: boolean;
 // }
 
-const dbItems = products.data as DbItem[];
+// const dbItems = products.data as DbItem[];
 // const menuItems = menuItemsData as MenuItem[];
 
 // const categories = Array.from(
 //   new Set(menuItems.map((item) => item.category))
 // );
 
-const dbCategories = Array.from(
-  new Set(dbItems.map((item) => item.category))
-)
+// const dbCategories = Array.from(
+//   new Set(dbItems.map((item) => item.category))
+// )
 
 
 
@@ -59,14 +54,40 @@ const dbCategories = Array.from(
 //   return groups;
 // }, {} as Record<string, MenuItem[]>);
 
-const groupedDbItems = dbItems.reduce((groups, item) => {
-  if (!item.is_available) return groups;
-  if (!groups[item.category]) groups[item.category] = [];
-  groups[item.category].push(item);
-  return groups;
-}, {} as Record<string, DbItem[]>);
+// fetch products in effect (no top-level await)
+// const MenuPage = () => {
+//   const [dbItems, setDbItems] = useState<DbItem[]>([]);
+//   const [loading, setLoading] = useState(true);
 
+//   useEffect(() => {
+//     let mounted = true;
+//     (async () => {
+//       const { data, error } = await supabase
+//         .from('products')
+//         .select('*')
+//         .order('name_he');
+//       if (mounted && data) setDbItems(data as DbItem[]);
+//       // optionally handle error
+//       if (mounted) setLoading(false);
+//     })();
+//     return () => { mounted = false; };
+//   }, []);
 
+// const groupedDbItems = dbItems.reduce((groups, item) => {
+//   if (!item.is_available) return groups;
+//   if (!groups[item.category]) groups[item.category] = [];
+//   groups[item.category].push(item);
+//   return groups;
+// }, {} as Record<string, DbItem[]>);
+
+// const groupedDbItems = useMemo(() => {
+//     return dbItems.reduce((groups, item) => {
+//       if (!item.is_available) return groups;
+//       if (!groups[item.category]) groups[item.category] = [];
+//       groups[item.category].push(item);
+//       return groups;
+//     }, {} as Record<string, DbItem[]>);
+//   }, [dbItems]);
 interface ItemModalProps {
   item: DbItem | null;
   onClose: () => void;
@@ -100,21 +121,66 @@ function ItemModal({ item, onClose }: ItemModalProps) {
 }
 
 function MenuPage() {
-  const [selectedItem, setSelectedItem] = useState<DbItem | null>(null);
+//   const [selectedItem, setSelectedItem] = useState<DbItem | null>(null);
+//   const [openCategories, setOpenCategories] = useState<Set<string>>(new Set()); // close all initially
 
-  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set()); // close all initially
+//   const toggleCategory = (category: string) => {
+//   setOpenCategories(prev => {
+//     const newSet = new Set(prev);
+//     if (newSet.has(category)) {
+//       newSet.delete(category);
+//     } else {
+//       newSet.add(category);
+//     }
+//     return newSet;
+//   });
+// };
+
+   // Close modal on Escape key
+//   useEffect(() => {
+//     const handleEscape = (e: KeyboardEvent) => {
+//       if (e.key === 'Escape' && selectedItem) {
+//         setSelectedItem(null);
+//       }
+//     };
+
+//     window.addEventListener('keydown', handleEscape);
+//     return () => window.removeEventListener('keydown', handleEscape);
+//   }, [selectedItem]);
+const [dbItems, setDbItems] = useState<DbItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedItem, setSelectedItem] = useState<DbItem | null>(null);
+  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set()); // closed initially
+  
+  console.log(loading)
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const { data } = await supabase
+        .from('products')
+        .select('*')
+        .order('name_he');
+      if (mounted && data) setDbItems(data as DbItem[]);
+      if (mounted) setLoading(false);
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  const groupedDbItems = useMemo(() => {
+    return dbItems.reduce((groups, item) => {
+      if (!item.is_available) return groups;
+      if (!groups[item.category]) groups[item.category] = [];
+      groups[item.category].push(item);
+      return groups;
+    }, {} as Record<string, DbItem[]>);
+  }, [dbItems]);
 
   const toggleCategory = (category: string) => {
-  setOpenCategories(prev => {
-    const newSet = new Set(prev);
-    if (newSet.has(category)) {
-      newSet.delete(category);
-    } else {
-      newSet.add(category);
-    }
-    return newSet;
-  });
-};
+    const next = new Set(openCategories);
+    if (next.has(category)) next.delete(category);
+    else next.add(category);
+    setOpenCategories(next);
+  };
 
   // Close modal on Escape key
   useEffect(() => {
@@ -127,6 +193,7 @@ function MenuPage() {
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
   }, [selectedItem]);
+  // useEffect(() => { /* ...existing code... */ }, [selectedItem]);
 
   return (
     <div className="page-content">
@@ -200,4 +267,3 @@ function MenuPage() {
 }
 
 export default MenuPage;
-
