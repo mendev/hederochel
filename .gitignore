@@ -1,6 +1,6 @@
 # dev scripts
 /dev
-
+/dev-scripts/**
 
 **/node_modules/
 .pnp
