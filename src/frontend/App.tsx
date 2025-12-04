@@ -3,8 +3,8 @@ import MenuPage from './pages/MenuPage';
 import ShiftsPage from './pages/ShiftsPage';
 import ReportsPage from './pages/ReportsPage';
 import LoginPage from './pages/LoginPage';
-
-type Page = 'menu' | 'shifts' | 'reports' | 'login';
+import RecepiesPage from './pages/RecepiesPage';
+type Page = 'menu' | 'shifts' | 'reports' | 'login' | 'receipes';
 
 function App() {
   const [activePage, setActivePage] = useState<Page>('menu');
@@ -62,7 +62,13 @@ function App() {
           return <MenuPage />;
         }
         return <ShiftsPage />;
-      case 'reports':
+       case 'receipes':
+        // Only show receipes if authenticated, otherwise redirect to menu
+        if (!isAuthenticated) {
+          return <MenuPage />;
+        }
+        return <RecepiesPage />;      
+        case 'reports':
         // Only show reports if authenticated, otherwise redirect to menu
         if (!isAuthenticated) {
           return <MenuPage />;
@@ -126,6 +132,12 @@ function App() {
                 onClick={() => handlePageChange('shifts')}
               >
                 משמרות
+              </button>
+              <button 
+                className={`nav-button ${activePage === 'receipes' ? 'active' : ''}`}
+                onClick={() => handlePageChange('receipes')}
+              >
+              מתכונים
               </button>
               <button 
                 className={`nav-button ${activePage === 'reports' ? 'active' : ''}`}
