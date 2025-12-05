@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import MenuPage from './pages/MenuPage';
 import ShiftsPage from './pages/ShiftsPage';
 import ReportsPage from './pages/ReportsPage';
@@ -15,6 +15,11 @@ function App() {
 
   // Use centralized auth state from AuthContext
   const { user, role, loading, signOut } = useAuth();
+  useEffect(() => {
+  if (!loading && user && activePage === 'login') {
+    setActivePage('menu'); // Redirect authenticated users away from login page
+  }
+  }, [user, loading, activePage]);
   const isAuthenticated = !!user;
   const username = user?.email || user?.id || null;
   

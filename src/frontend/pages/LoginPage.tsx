@@ -10,6 +10,7 @@ function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     try {
       await signIn(email, password);
       // signIn will update AuthContext and redirect as needed
