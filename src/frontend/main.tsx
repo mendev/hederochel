@@ -14,8 +14,10 @@ if (!container) {
 }
 
 createRoot(container).render(
+  <StrictMode>
   <AuthProvider>
     <App />
   </AuthProvider>
+  </StrictMode>
 );
 

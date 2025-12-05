@@ -21,36 +21,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   async function fetchProfile(uid: string) {
-    const { data, error } = await supabase
+    const resp = await supabase
       .from('profiles')
       .select('role')
       .eq('id', uid)
       .single();
-    if (data) setRole(data.role);
+    const profile = resp.data; // use resp variable so there's no unused 'error'
+    if (profile) setRole(profile.role);
     else setRole(null);
   }
 
   useEffect(() => {
     // initial session
     (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        setUser(session.user);
-        await fetchProfile(session.user.id);
-      }
-      setLoading(false);
-    })();
+    const resp = await supabase.auth.getSession();
+    const session = resp.data?.session ?? null;
+    if (session?.user) {
+      setUser(session.user);
+      await fetchProfile(session.user.id);
+    }
+    setLoading(false);
+  })();
 
     // subscribe to changes
     const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        setUser(session.user);
-        await fetchProfile(session.user.id);
-      } else {
-        setUser(null);
-        setRole(null);
-      }
-    });
+    if (session?.user) {
+      setUser(session.user);
+      await fetchProfile(session.user.id);
+    } else {
+      setUser(null);
+      setRole(null);
+    }
+  });
 
     return () => {
       listener.subscription.unsubscribe();
@@ -59,6 +61,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+    if (data.session == null) {
+      console.log('No active session after sign in');
+    }
     if (error) throw error;
     // after sign in, profile should be fetched by onAuthStateChange
   };

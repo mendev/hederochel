@@ -1,7 +1,7 @@
 function UnderConstructionPage() {
   return (
     <div className="page-content">
-      <h2>מתכונים</h2>
+      <h2>כאן בונים !</h2>
       <div className="page-section">
         <h1>בקרוב</h1>
         <p>עמוד נמצא בפיתוח ויגיע בקרוב!</p>

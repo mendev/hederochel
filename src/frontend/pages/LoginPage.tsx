@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '../data/supabaseClient';
+// import { supabase } from '../data/supabaseClient';
 import { useAuth } from '../lib/AuthContext'; // see AuthContext below
 
 function LoginPage() {
