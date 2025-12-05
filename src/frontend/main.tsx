@@ -4,6 +4,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
+import { AuthProvider } from './lib/AuthContext';
+
 
 
 const container = document.getElementById('root');
@@ -13,7 +15,9 @@ if (!container) {
 
 createRoot(container).render(
   <StrictMode>
+  <AuthProvider>
     <App />
+  </AuthProvider>
   </StrictMode>
 );
 

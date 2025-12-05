@@ -1,23 +1,21 @@
 import { useState } from 'react';
+// import { supabase } from '../data/supabaseClient';
+import { useAuth } from '../lib/AuthContext'; // see AuthContext below
 
-interface LoginPageProps {
-  onLogin: (username: string) => void;
-}
-
-function LoginPage({ onLogin }: LoginPageProps) {
-  const [username, setUsername] = useState('');
+function LoginPage() {
+  const { signIn } = useAuth();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
-    // Dummy authentication - check credentials
-    if (username === 'user1' && password === 'password1') {
-      onLogin(username);
-    } else {
-      setError('שם משתמש או סיסמה שגויים');
+    try {
+      await signIn(email, password);
+      // signIn will update AuthContext and redirect as needed
+    } catch (err: any) {
+      setError(err?.message || 'שגיאה בהתחברות');
     }
   };
 
@@ -29,14 +27,14 @@ function LoginPage({ onLogin }: LoginPageProps) {
         
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
-            <label htmlFor="username">שם משתמש:</label>
+            <label htmlFor="email">שם משתמש :</label>
             <input
               type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
-              autoComplete="username"
+              autoComplete="email"
             />
           </div>
 
