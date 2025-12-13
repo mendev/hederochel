@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 46, "column": 0}, "map": {"version":3,"sources":["file:///Users/nadav.sorek/factory/projects/hederochel/app/api/health/route.ts"],"sourcesContent":["import { NextResponse } from \"next/server\"\n\n// Simple health check endpoint\n// Use this to verify your API routes are working\n// Test: curl http://localhost:3000/api/health\n\nexport async function GET() {\n  return NextResponse.json({\n    status: \"ok\",\n    timestamp: new Date().toISOString(),\n    message: \"API is running! Your serverless functions work.\",\n  })\n}\n"],"names":[],"mappings":";;;;AAAA;;AAMO,eAAe;IACpB,OAAO,gJAAY,CAAC,IAAI,CAAC;QACvB,QAAQ;QACR,WAAW,IAAI,OAAO,WAAW;QACjC,SAAS;IACX;AACF"}}]
+}
