@@ -1,4 +1,4 @@
-export function UnderConstructionPage() {
+function UnderConstructionPage() {
   return (
     <div className="page-content">
       <h2>כאן בונים !</h2>
@@ -14,3 +14,5 @@ export function UnderConstructionPage() {
     </div>
   );
 }
+
+export default UnderConstructionPage;

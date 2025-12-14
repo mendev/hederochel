@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
+import { de } from 'date-fns/locale';
 // import { col, menu } from 'framer-motion/client';
 
 interface price {
@@ -55,7 +56,7 @@ function ItemModal({ item, onClose }: ItemModalProps) {
   );
 }
 
-export function MenuPage() {
+function MenuPage() {
   const [dbItems, setDbItems] = useState<DbItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<DbItem | null>(null);
@@ -174,4 +175,4 @@ export function MenuPage() {
   );
 }
 
-
+export default MenuPage;

@@ -4,8 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SetupChecklist } from "@/components/setup-checklist"
 import { ApiTester } from "@/components/api-tester"
 import { UsersList } from "@/components/users-list"
-import { MenuPage } from "@/pages/MenuPage"
-import { UnderConstructionPage } from "@/pages/UnderConstructionPage"
+import  MenuPage from "@/pages/MenuPage"
+import UnderConstructionPage from "@/pages/UnderConstructionPage"
 import { useState, useEffect } from 'react';
 
 type Page = 'menu' | 'shifts' | 'reports' | 'login' | 'receipes' | 'stock' | 'shift-management' | 'reports-management';
