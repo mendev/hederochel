@@ -2,15 +2,17 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
+import { AuthProvider } from "@/contexts/auth-context"
 import "./globals.css"
+
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "React + Vercel Serverless + Supabase Guide",
-  description: "A working example demonstrating serverless functions with Supabase",
-  generator: "v0.app",
+  title: "חדר אוכל - HederOchel",
+  description:"הפאב הקהילתי של מושב לכיש",
+  generator: "Nadav Sorek",
   icons: {
     icon: [
       {
@@ -27,7 +29,12 @@ export const metadata: Metadata = {
       },
     ],
     apple: "/apple-icon.png",
-  },
+  }
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1.0,
 }
 
 export default function RootLayout({
@@ -38,7 +45,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
-        {children}
+        <AuthProvider>{children}</AuthProvider>
         <Analytics />
       </body>
     </html>
