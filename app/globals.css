@@ -1,3 +1,8 @@
+
+
+@import "tailwindcss";
+@import "tw-animate-css";
+
 :root {
   color-scheme: light dark;
   --sidebar-width: 22.5%;
@@ -478,6 +483,7 @@ body {
   text-align: right;
   direction: rtl;
   transition: border-color 0.2s;
+  color:#000;
 }
 
 .form-group input:focus {
@@ -773,3 +779,130 @@ body {
 
 }
 
+.users-table {
+  width: 100%;
+  color: #000;
+  font-size: large;
+  border: #000 0px solid;
+}
+.users-table th, .users-table td {
+  border: #000 1px solid;
+  padding: 8px;
+  text-align: right;
+}
+
+
+@theme inline {
+  --font-sans: "Geist", "Geist Fallback";
+  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    /* Use CSS variables directly instead of @apply for border and outline */
+    border-color: var(--border);
+    outline-color: color-mix(in oklch, var(--ring) 50%, transparent);
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* =============================================
+   SHIFTS CALENDAR CUSTOM STYLES
+   ============================================= */
+
+/* Ensure calendar takes full width and proper background */
+.shifts-calendar-container {
+  @apply w-full min-h-screen bg-background;
+}
+
+/* Calendar cell hover and active states */
+.calendar-day-cell {
+  @apply transition-all duration-200;
+}
+
+.calendar-day-cell:hover {
+  @apply shadow-md;
+}
+
+/* Shift indicator animations */
+.shift-indicator {
+  @apply transition-transform duration-150 ease-out;
+}
+
+.shift-indicator:hover {
+  @apply scale-110 shadow-lg;
+}
+
+/* Mobile-first responsive calendar grid */
+@media (max-width: 640px) {
+  .calendar-grid {
+    font-size: 0.875rem;
+  }
+
+  .calendar-day-number {
+    font-size: 0.75rem;
+
+  }
+}
+
+/* RTL support for Hebrew calendar */
+[dir="rtl"] .calendar-nav-prev {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .calendar-nav-next {
+  transform: scaleX(-1);
+}
+
+/* Today indicator pulse animation */
+@keyframes today-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--primary);
+  }
+  50% {
+    box-shadow: 0 0 0 4px transparent;
+  }
+}
+
+.calendar-today {
+  animation: today-pulse 2s ease-in-out infinite;
+}

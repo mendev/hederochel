@@ -6,9 +6,12 @@ import { ApiTester } from "@/components/api-tester"
 import { UsersList } from "@/components/users-list"
 import  MenuPage from "@/pages/MenuPage"
 import UnderConstructionPage from "@/pages/UnderConstructionPage"
+import UsersPage from "@/pages/UsersPage"
+import ShiftsPage from "@/pages/ShiftsPage"
+import LoginPage from "@/pages/LoginPage"
 import { useState, useEffect } from 'react';
 
-type Page = 'menu' | 'shifts' | 'reports' | 'login' | 'receipes' | 'stock' | 'shift-management' | 'reports-management';
+type Page = 'menu' | 'shifts' | 'reports' | 'login' | 'receipes' | 'stock' | 'shift-management' | 'reports-management' | 'users' ;
 
 export default function Home() {
   const [activePage, setActivePage] = useState<Page>('menu');
@@ -16,16 +19,23 @@ export default function Home() {
 
   
   // Use centralized auth state from AuthContext
-  const { user, role, loading, signOut } = useAuth();
+  const { user, role, fullName, loading, signOut } = useAuth();
   useEffect(() => {
   if (!loading && user && activePage === 'login') {
     setActivePage('menu'); // Redirect authenticated users away from login page
   }
   }, [user, loading, activePage]);
-  // const isAuthenticated = !!user;
-  const isAuthenticated = true;
-  const username = user?.email || user?.id || null;
+  const isAuthenticated = !!user;
+  const username = fullName || user?.email || null;
+  console.log("Rendered with user:", user, "fullName:", fullName);
+  // const username = user?. || user?.id || null;
   
+
+  const handleLogout = async () => {
+    await signOut();
+    setActivePage('menu');
+  }
+
   const handlePageChange = (page: Page) => {
     // Page-level quick checks (UI level only), renderPage() will do final checks 
     if ((page === 'shifts' || page === 'receipes') && !isAuthenticated) {
@@ -48,10 +58,10 @@ export default function Home() {
       case 'menu':
         return <MenuPage />;
       case 'login':
-        return <UnderConstructionPage />;
+        return <LoginPage />;
       case 'shifts':
         if (!isAuthenticated) return <MenuPage />;
-        return <UnderConstructionPage />;
+        return <ShiftsPage />;
       case 'receipes':
         if (!isAuthenticated) return <MenuPage />;
         return <UnderConstructionPage />;
@@ -60,7 +70,11 @@ export default function Home() {
         if (!(role === 'shift-manager' || role === 'manager')) return <MenuPage />; // or show 403
         return <UnderConstructionPage />;
       case 'stock':
+        return <UnderConstructionPage />;
       case 'shift-management':
+        return <UnderConstructionPage />;
+      case 'users':
+        return <UsersPage />;
       case 'reports-management':
         if (!isAuthenticated) return <MenuPage />;
         if (role !== 'manager') return <MenuPage />;
@@ -131,17 +145,27 @@ export default function Home() {
               >
               מתכונים
               </button>
+              {(role === 'manager' || role === 'shift-manager') && (
                 <button
                   className={`nav-button ${activePage === 'reports' ? 'active' : ''}` }
                   onClick={() => handlePageChange('reports')}
                 >
                   דוחות
                 </button>
-              <button
+              )}
+              {role === 'manager' && (
+                  <>
+                  <button
                     className={`nav-button ${activePage === 'stock' ? 'active' : ''}` }
                     onClick={() => handlePageChange('stock')}
                   >
                     ניהול מלאי
+                  </button>
+                  <button
+                    className={`nav-button ${activePage === 'users' ? 'active' : ''}` }
+                    onClick={() => handlePageChange('users')}
+                  >
+                    ניהול משתמשים
                   </button>
                   <button
                     className={`nav-button ${activePage === 'shift-management' ? 'active' : ''}` }
@@ -155,9 +179,13 @@ export default function Home() {
                   >
                     ניהול דוחות
                   </button>
+                  </>
+                )}
                 </>
           ) : (
-            <button>
+            <button
+            className={`nav-button ${activePage === 'login' ? 'active' : ''}`}
+              onClick={() => handlePageChange('login')}>
               התחבר
             </button>
           )}
@@ -168,10 +196,11 @@ export default function Home() {
           {isAuthenticated ? (
             <>
               <div className="user-info">
-                <span className="user-id">משתמש:שלום</span>
+                <span className="user-id">{username}</span>
               </div>
               <a href="#" className="logout-link" onClick={(e) => {
                 e.preventDefault();
+                handleLogout();
               }}>
                 התנתק
               </a>
