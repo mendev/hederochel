@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShiftsCalendar } from '@/components/shifts-calendar';
+import { ShiftsCalendar } from '../shifts-calendar';
 
 function ShiftsPage() {
   return (

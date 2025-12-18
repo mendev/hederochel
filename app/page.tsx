@@ -1,14 +1,16 @@
+
 "use client"
+
 import { useAuth } from "@/contexts/auth-context"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SetupChecklist } from "@/components/setup-checklist"
 import { ApiTester } from "@/components/api-tester"
 import { UsersList } from "@/components/users-list"
-import  MenuPage from "@/pages/MenuPage"
-import UnderConstructionPage from "@/pages/UnderConstructionPage"
-import UsersPage from "@/pages/UsersPage"
-import ShiftsPage from "@/pages/ShiftsPage"
-import LoginPage from "@/pages/LoginPage"
+import  MenuPage from "@/components/pages/MenuPage"
+import UnderConstructionPage from "@/components/pages/UnderConstructionPage"
+import UsersPage from "@/components/pages/UsersPage"
+import ShiftsPage from "@/components/pages/ShiftsPage"
+import LoginPage from "@/components/pages/LoginPage"
 import { useState, useEffect } from 'react';
 
 type Page = 'menu' | 'shifts' | 'reports' | 'login' | 'receipes' | 'stock' | 'shift-management' | 'reports-management' | 'users' ;

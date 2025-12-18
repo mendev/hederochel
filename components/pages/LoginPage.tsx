@@ -1,7 +1,7 @@
-
+"use client";
 import { useState } from 'react';
 // import { supabase } from '../data/supabaseClient';
-import { useAuth } from '../contexts/auth-context'; // see AuthContext below
+import { useAuth } from '../../contexts/auth-context'; // see AuthContext below
 
 function LoginPage() {
   const { signIn } = useAuth();
@@ -24,7 +24,7 @@ function LoginPage() {
     <div className="page-content">
       <div className="login-container">
         <h2>התחברות</h2>
-        <p>אנא הכנס פרטי התחברות לצפייה בתפריט</p>
+        <p>אנא הכנס פרטי התחברות </p>
         
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
