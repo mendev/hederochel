@@ -111,6 +111,8 @@ interface ShiftsCalendarProps {
   onShiftClick?: (shift: Shift) => void
   onDateSelect?: (date: Date) => void
   className?: string
+  managementMode?: boolean
+  onShiftEdit?: (shift: Shift) => void
 }
 
 export function ShiftsCalendar({
@@ -118,6 +120,8 @@ export function ShiftsCalendar({
   onShiftClick,
   onDateSelect,
   className,
+  managementMode = false,
+  onShiftEdit,
 }: ShiftsCalendarProps) {
   const [shifts, setShifts] = React.useState<Shift[]>(propShifts || [])
   const [loading, setLoading] = React.useState(!propShifts)
@@ -199,9 +203,15 @@ export function ShiftsCalendar({
 
   const handleShiftClick = (shift: Shift, e: React.MouseEvent) => {
     e.stopPropagation()
-    setSelectedShift(shift)
-    setDialogOpen(true)
-    setSignupError(null)
+
+    if (managementMode && onShiftEdit) {
+      onShiftEdit(shift)
+    } else {
+      setSelectedShift(shift)
+      setDialogOpen(true)
+      setSignupError(null)
+    }
+
     onShiftClick?.(shift)
   }
 

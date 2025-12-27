@@ -11,9 +11,11 @@ import UnderConstructionPage from "@/components/pages/UnderConstructionPage"
 import UsersPage from "@/components/pages/UsersPage"
 import ShiftsPage from "@/components/pages/ShiftsPage"
 import LoginPage from "@/components/pages/LoginPage"
+import MyShifts from "@/components/pages/MyShiftsPage"
+import ShiftManagmentPage from "@/components/pages/ShiftManagementPage"
 import { useState, useEffect } from 'react';
 
-type Page = 'menu' | 'shifts' | 'reports' | 'login' | 'receipes' | 'stock' | 'shift-management' | 'reports-management' | 'users' ;
+type Page = 'menu' | 'my-shifts' | 'shifts' | 'reports' | 'login' | 'receipes' | 'stock' | 'shift-management' | 'reports-management' | 'users' ;
 
 export default function Home() {
   const [activePage, setActivePage] = useState<Page>('menu');
@@ -40,7 +42,7 @@ export default function Home() {
 
   const handlePageChange = (page: Page) => {
     // Page-level quick checks (UI level only), renderPage() will do final checks 
-    if ((page === 'shifts' || page === 'receipes') && !isAuthenticated) {
+    if ((page === 'shifts' || page === 'receipes' || page == 'my-shifts' ) && !isAuthenticated) {
       setActivePage('menu');
     } else if (page === 'reports' && !(role === 'shift-manager' || role === 'manager')) {
       setActivePage('menu');
@@ -64,6 +66,9 @@ export default function Home() {
       case 'shifts':
         if (!isAuthenticated) return <MenuPage />;
         return <ShiftsPage />;
+      case "my-shifts":
+        if (!isAuthenticated) return <MenuPage />;
+        return <MyShifts />;
       case 'receipes':
         if (!isAuthenticated) return <MenuPage />;
         return <UnderConstructionPage />;
@@ -74,7 +79,7 @@ export default function Home() {
       case 'stock':
         return <UnderConstructionPage />;
       case 'shift-management':
-        return <UnderConstructionPage />;
+        return <ShiftManagmentPage />;
       case 'users':
         return <UsersPage />;
       case 'reports-management':
@@ -135,6 +140,12 @@ export default function Home() {
           </button>
           {isAuthenticated ? (
             <>
+              <button
+                className={`nav-button ${activePage === 'my-shifts' ? 'active' : ''}`}
+                onClick={() => handlePageChange('my-shifts')}
+              >
+                המשמרות שלי
+              </button>
               <button 
                 className={`nav-button ${activePage === 'shifts' ? 'active' : ''}`}
                 onClick={() => handlePageChange('shifts')}

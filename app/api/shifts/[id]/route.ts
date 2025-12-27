@@ -170,3 +170,95 @@ export async function PATCH(
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
+
+// PUT /api/shifts/[id] - Update a shift (full update)
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const supabase = await createServerClientWithCookies()
+
+    // Check if user is authenticated
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { id } = await params
+    const body = await request.json()
+    const { title, shift_date, shift_start_time, shift_type, state, bartenders_required, notes } = body
+
+    // Validate required fields
+    if (!title || !shift_date || !shift_start_time || !shift_type || !state || !bartenders_required) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      )
+    }
+
+    // Update shift
+    const { data: updatedShift, error: updateError } = await supabase
+      .from("shifts")
+      .update({
+        title,
+        shift_date,
+        shift_start_time,
+        shift_type,
+        state,
+        bartenders_required,
+        notes,
+      })
+      .eq("id", id)
+      .select()
+      .single()
+
+    if (updateError) {
+      console.error("Error updating shift:", updateError)
+      return NextResponse.json({ error: updateError.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ shift: updatedShift })
+  } catch (error) {
+    console.error("Error in shift PUT:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
+
+// DELETE /api/shifts/[id] - Delete a shift
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const supabase = await createServerClientWithCookies()
+
+    // Check if user is authenticated
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { id } = await params
+
+    // Delete shift
+    const { error: deleteError } = await supabase
+      .from("shifts")
+      .delete()
+      .eq("id", id)
+
+    if (deleteError) {
+      console.error("Error deleting shift:", deleteError)
+      return NextResponse.json({ error: deleteError.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error("Error in shift DELETE:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}

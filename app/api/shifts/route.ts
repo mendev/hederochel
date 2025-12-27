@@ -103,12 +103,12 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { title, shift_start_time, end_time, shift_type, notes, bartenders } = body
+    const { title, shift_date, shift_start_time, shift_type, state, bartenders_required, notes } = body
 
     // Validate required fields
-    if (!title || !shift_start_time || !shift_type || !bartenders) {
+    if (!title || !shift_date || !shift_start_time || !shift_type) {
       return NextResponse.json(
-        { error: "Missing required fields: title, shift_start_time, shift_type, bartenders" },
+        { error: "Missing required fields: title, shift_date, shift_start_time, shift_type" },
         { status: 400 },
       )
     }
@@ -117,11 +117,13 @@ export async function POST(request: Request) {
       .from("shifts")
       .insert({
         title,
+        shift_date,
         shift_start_time,
-        end_time,
         shift_type,
+        state: state || "פתוחה",
+        bartenders_required: bartenders_required || 3,
         notes,
-        bartenders,
+        bartenders: [],
       })
       .select()
       .single()
