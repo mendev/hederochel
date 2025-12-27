@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useMemo } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '../../lib/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { de } from 'date-fns/locale';
 // import { col, menu } from 'framer-motion/client';

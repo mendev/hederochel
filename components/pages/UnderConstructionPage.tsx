@@ -1,3 +1,5 @@
+import { Spinner } from '../ui/spinner';
+
 function UnderConstructionPage() {
   return (
     <div className="page-content">
@@ -9,7 +11,8 @@ function UnderConstructionPage() {
           src="https://gsjzfetxqdvphqxxmflh.supabase.co/storage/v1/object/sign/image/under_construction.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV84YTU4MGFjOC1hYmRjLTRhYmMtYWZjOS1mYzE4ZmIyMjJmZTUiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpbWFnZS91bmRlcl9jb25zdHJ1Y3Rpb24ucG5nIiwiaWF0IjoxNzY0MzU2MTA3LCJleHAiOjE3OTU4OTIxMDd9.Y3MBcTS-K84mabOPxF4_jpi_29FoUX87Uzu6ZrGB_6U" 
           alt="Under Construction" 
           style={{ maxWidth: '400px', marginTop: '20px' }} 
-        />
+          />
+          <Spinner style={{ marginTop: '20px' , color: "blue", width: '100px'}}/>
       </div>
     </div>
   );

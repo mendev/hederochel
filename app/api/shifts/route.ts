@@ -2,16 +2,24 @@ import { NextResponse } from "next/server"
 import { createAdminClient, createServerClientWithCookies } from "@/lib/supabase/server"
 
 // Shift type from your database
-export type ShiftType = "ערב חמישי" | "ארוע מיוחד" | "ערב צעירים" | "אחר"
+export type ShiftType =
+  | "משמרת רגילה"
+  | "ערב צעירים"
+  | "ארוע מיוחד"
+
+export type ShiftState = "פתוחה" | "מלאה" | "סגורה"
 
 export interface DBShift {
   id: number
+  shitf_date: string
+  shift_start_time: string
   title: string
-  start_time: string
-  end_time: string | null
   shift_type: ShiftType
   notes: string | null
+  bartenders_required: number | 3
   bartenders: string[] // Array of user IDs
+  state: ShiftState
+  report_id: string | null
   created_at: string
 }
 
@@ -24,14 +32,14 @@ export async function GET(request: Request) {
 
     const supabase = await createServerClientWithCookies()
 
-    let query = supabase.from("shifts").select("*").order("start_time", { ascending: true })
+    let query = supabase.from("shifts").select("*").order("shift_start_time", { ascending: true })
 
     // Filter by date range if provided
     if (startDate) {
-      query = query.gte("start_time", startDate)
+      query = query.gte("shift_date", startDate)
     }
     if (endDate) {
-      query = query.lte("start_time", endDate)
+      query = query.lte("shift_date", endDate)
     }
 
     const { data: shifts, error } = await query
@@ -64,9 +72,10 @@ export async function GET(request: Request) {
       }
     }
 
-    // Enrich shifts with bartender names
+    // Enrich shifts with bartender names and map field names
     const enrichedShifts = shifts?.map((shift) => ({
       ...shift,
+      shift_state: shift.state,  // Map database 'state' to component 'shift_state'
       bartender_details: (shift.bartenders || []).map((id: string) => ({
         id,
         ...bartenderProfiles[id],
@@ -94,12 +103,12 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { title, start_time, end_time, shift_type, notes, bartenders } = body
+    const { title, shift_start_time, end_time, shift_type, notes, bartenders } = body
 
     // Validate required fields
-    if (!title || !start_time || !shift_type || !bartenders) {
+    if (!title || !shift_start_time || !shift_type || !bartenders) {
       return NextResponse.json(
-        { error: "Missing required fields: title, start_time, shift_type, bartenders" },
+        { error: "Missing required fields: title, shift_start_time, shift_type, bartenders" },
         { status: 400 },
       )
     }
@@ -108,7 +117,7 @@ export async function POST(request: Request) {
       .from("shifts")
       .insert({
         title,
-        start_time,
+        shift_start_time,
         end_time,
         shift_type,
         notes,
