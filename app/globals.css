@@ -4,16 +4,34 @@
 @import "tw-animate-css";
 
 :root {
-  color-scheme: light dark;
+  color-scheme: dark;
+
+  /* Hederochel Dark Theme - Based on design */
+  --primary-teal: #2C5F5F;
+  --primary-teal-light: #3A7575;
+  --primary-teal-dark: #1F4444;
+  --accent-orange: #E8994D;
+  --accent-orange-light: #F0A96A;
+  --accent-orange-dark: #D68739;
+
+  --background-dark: #1A1A1A;
+  --background-card: #252525;
+  --background-card-hover: #2F2F2F;
+  --text-primary: #FFFFFF;
+  --text-secondary: #A0A0A0;
+  --text-muted: #707070;
+
+  --border-color: #3A3A3A;
+  --border-light: #4A4A4A;
+
+  /* Layout */
   --sidebar-width: 22.5%;
-  --sidebar-bg: #f8f9fa;
-  --sidebar-border: #e9ecef;
-  --text-primary: #212529;
-  --text-secondary: #6c757d;
-  --hover-bg: #e9ecef;
-  --active-bg: #dee2e6;
-  --active-color: #0d6efd;
-  --active-bg-light: #e7f1ff;
+  --sidebar-bg: var(--primary-teal);
+  --sidebar-border: var(--primary-teal-light);
+  --hover-bg: var(--background-card-hover);
+  --active-bg: var(--accent-orange);
+  --active-color: var(--accent-orange);
+  --active-bg-light: rgba(232, 153, 77, 0.15);
 }
 
 html, body, #root {
@@ -27,6 +45,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   direction: rtl;
+  background-color: var(--background-dark);
+  color: var(--text-primary);
 }
 
 /* App Container - Two Column Layout */
@@ -44,12 +64,12 @@ body {
   top: 1rem;
   right: 1rem;
   z-index: 1001;
-  background-color: var(--sidebar-bg);
-  border: 1px solid var(--sidebar-border);
+  background-color: var(--primary-teal);
+  border: 1px solid var(--primary-teal-light);
   border-radius: 8px;
   padding: 0.75rem;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .hamburger {
@@ -62,7 +82,7 @@ body {
 .hamburger span {
   width: 100%;
   height: 3px;
-  background-color: var(--text-primary);
+  background-color: white;
   border-radius: 2px;
   transition: all 0.3s;
 }
@@ -214,7 +234,7 @@ body {
 .main-content {
   flex: 1;
   overflow-y: auto;
-  background-color: #ffffff;
+  background-color: var(--background-dark);
   width: 100%;
 }
 
@@ -266,9 +286,9 @@ body {
 .page-section {
   margin-top: 2rem;
   padding: 1.5rem;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  border: 1px solid var(--sidebar-border);
+  background-color: var(--background-card);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
 }
 
 .page-section h3 {
@@ -288,19 +308,21 @@ body {
 }
 
 .menu-item {
-  background-color: #ffffff;
+  background-color: var(--background-card);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
   display: flex;
   flex-direction: column;
+  border: 1px solid var(--border-color);
 }
 
 .menu-item:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 20px rgba(232, 153, 77, 0.2);
+  border-color: var(--accent-orange);
 }
 
 .menu-item-image {
@@ -451,9 +473,10 @@ body {
   max-width: 400px;
   margin: 2rem auto;
   padding: 2rem;
-  background-color: #ffffff;
+  background-color: var(--background-card);
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-color);
 }
 
 .login-form {
@@ -477,40 +500,43 @@ body {
 
 .form-group input {
   padding: 0.75rem 1rem;
-  border: 1px solid var(--sidebar-border);
-  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
   font-size: 1rem;
   text-align: right;
   direction: rtl;
-  transition: border-color 0.2s;
-  color:#000;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  color: var(--text-primary);
+  background-color: var(--background-dark);
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: var(--active-color);
-  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+  border-color: var(--accent-orange);
+  box-shadow: 0 0 0 3px rgba(232, 153, 77, 0.15);
 }
 
 .login-button {
   padding: 0.75rem 1.5rem;
-  background-color: var(--active-color);
+  background-color: var(--accent-orange);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, transform 0.1s;
   margin-top: 0.5rem;
 }
 
 .login-button:hover {
-  background-color: #0b5ed7;
+  background-color: var(--accent-orange-light);
+  transform: translateY(-1px);
 }
 
 .login-button:active {
-  background-color: #0a58ca;
+  background-color: var(--accent-orange-dark);
+  transform: translateY(0);
 }
 
 .error-message {
@@ -549,15 +575,16 @@ body {
 }
 
 .modal-content {
-  background-color: #ffffff;
+  background-color: var(--background-card);
   border-radius: 12px;
   max-width: 600px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
   animation: slideUp 0.3s ease;
+  border: 1px solid var(--border-color);
 }
 
 @keyframes slideUp {
@@ -718,7 +745,7 @@ body {
 
   .menu-category {
     margin-bottom: 1.5rem;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--border-color);
   }
   
   .category-header {
@@ -726,15 +753,17 @@ body {
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
-    background-color: #f7f7f7;
+    background-color: var(--background-card);
     padding: 0.6rem 1rem;
     border-radius: 8px;
     transition: background-color 0.2s;
     user-select: none;
+    border: 1px solid var(--border-color);
   }
-  
+
   .category-header:hover {
-    background-color: #ececec;
+    background-color: var(--background-card-hover);
+    border-color: var(--accent-orange);
   }
   
   .category-title {
@@ -795,52 +824,61 @@ body {
 @theme inline {
   --font-sans: "Geist", "Geist Fallback";
   --font-mono: "Geist Mono", "Geist Mono Fallback";
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Dark theme colors */
+  --background: 26 26 26; /* #1A1A1A */
+  --foreground: 255 255 255; /* #FFFFFF */
+
+  --card: 37 37 37; /* #252525 */
+  --card-foreground: 255 255 255;
+
+  --popover: 37 37 37;
+  --popover-foreground: 255 255 255;
+
+  --primary: 44 95 95; /* Teal #2C5F5F */
+  --primary-foreground: 255 255 255;
+
+  --secondary: 47 47 47;
+  --secondary-foreground: 255 255 255;
+
+  --muted: 58 58 58;
+  --muted-foreground: 160 160 160;
+
+  --accent: 232 153 77; /* Orange #E8994D */
+  --accent-foreground: 255 255 255;
+
+  --destructive: 220 38 38;
+  --destructive-foreground: 255 255 255;
+
+  --border: 58 58 58;
+  --input: 58 58 58;
+  --ring: 232 153 77; /* Orange */
+
+  --chart-1: 232 153 77;
+  --chart-2: 44 95 95;
+  --chart-3: 58 117 117;
+  --chart-4: 240 169 106;
+  --chart-5: 31 68 68;
+
+  --radius: 0.5rem;
+
+  --sidebar: 44 95 95; /* Teal */
+  --sidebar-foreground: 255 255 255;
+  --sidebar-primary: 232 153 77; /* Orange */
+  --sidebar-primary-foreground: 255 255 255;
+  --sidebar-accent: 58 117 117;
+  --sidebar-accent-foreground: 255 255 255;
+  --sidebar-border: 58 117 117;
+  --sidebar-ring: 232 153 77;
 }
 
 @layer base {
   * {
-    /* Use CSS variables directly instead of @apply for border and outline */
-    border-color: var(--border);
-    outline-color: color-mix(in oklch, var(--ring) 50%, transparent);
+    border-color: hsl(var(--border));
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 }
 
@@ -850,25 +888,28 @@ body {
 
 /* Ensure calendar takes full width and proper background */
 .shifts-calendar-container {
-  @apply w-full min-h-screen bg-background;
+  width: 100%;
+  min-height: 100vh;
+  background-color: hsl(var(--background));
 }
 
 /* Calendar cell hover and active states */
 .calendar-day-cell {
-  @apply transition-all duration-200;
+  transition: all 0.2s;
 }
 
 .calendar-day-cell:hover {
-  @apply shadow-md;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 /* Shift indicator animations */
 .shift-indicator {
-  @apply transition-transform duration-150 ease-out;
+  transition: transform 150ms ease-out;
 }
 
 .shift-indicator:hover {
-  @apply scale-110 shadow-lg;
+  transform: scale(1.1);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
 /* Mobile-first responsive calendar grid */

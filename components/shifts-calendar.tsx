@@ -48,30 +48,36 @@ export interface Shift {
  * Config
  * -------------------------------------------------- */
 
-const shiftConfig: Record<
-  ShiftType,
+const shiftTypeLabels: Record<ShiftType, string> = {
+  "משמרת רגילה": "משמרת רגילה",
+  "ערב צעירים": "ערב צעירים",
+  "ארוע מיוחד": "ארוע מיוחד",
+}
+
+const stateConfig: Record<
+  ShiftState,
   { symbol: string; color: string; label: string }
 > = {
-  "משמרת רגילה": {
+  פתוחה: {
     symbol: "●",
-    color: "bg-gray-100 text-gray-700 border-gray-300",
-    label: "משמרת רגילה",
+    color: "bg-green-500 text-white border-green-600",
+    label: "פתוחה",
   },
-  "ערב צעירים": {
-    symbol: "צ",
-    color: "bg-blue-100 text-blue-700 border-blue-300",
-    label: "ערב צעירים",
+  מלאה: {
+    symbol: "●",
+    color: "bg-red-500 text-white border-red-600",
+    label: "מלאה",
   },
-  "ארוע מיוחד": {
-    symbol: "★",
-    color: "bg-amber-100 text-amber-700 border-amber-300",
-    label: "ארוע מיוחד",
+  סגורה: {
+    symbol: "●",
+    color: "bg-gray-500 text-white border-gray-600",
+    label: "סגורה",
   },
 }
 
 const stateBadgeVariant: Record<ShiftState, string> = {
   פתוחה: "bg-green-100 text-green-700",
-  מלאה: "bg-yellow-100 text-yellow-800",
+  מלאה: "bg-red-100 text-red-700",
   סגורה: "bg-gray-200 text-gray-700",
 }
 
@@ -329,13 +335,13 @@ export function ShiftsCalendar({
 
   return (
     <>
-      <div className={cn("bg-white p-4 rounded-xl", className)} dir="rtl">
+      <div  dir="rtl">
         <div className="flex justify-between items-center mb-6">
           <Button variant="outline" size="icon" onClick={goToNextMonth}>
             <ChevronRightIcon />
           </Button>
 
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-foreground">
             {hebrewMonths[currentMonth.getMonth()]} {currentMonth.getFullYear()}
           </h2>
 
@@ -346,7 +352,7 @@ export function ShiftsCalendar({
 
         <div className="grid grid-cols-7 gap-2 mb-2">
           {hebrewDays.map((day) => (
-            <div key={day} className="text-center font-semibold text-gray-700">
+            <div key={day} className="text-center font-semibold text-white">
               {day}
             </div>
           ))}
@@ -361,26 +367,31 @@ export function ShiftsCalendar({
                 key={idx}
                 onClick={() => handleDateClick(date)}
                 className={cn(
-                  "min-h-[90px] p-2 rounded-lg border border-gray-200 cursor-pointer hover:border-gray-300 transition-colors",
-                  isCurrentMonth ? "bg-white" : "bg-gray-50 opacity-50",
+                  "min-h-[90px] p-2 rounded-lg border cursor-pointer hover:border-accent transition-colors",
+                  isCurrentMonth
+                    ? "bg-card border-border"
+                    : "bg-card/50 border-border/50 opacity-60",
                 )}
               >
-                <div className="font-medium mb-1 text-gray-900">{date.getDate()}</div>
+                <div className="font-medium mb-1 text-foreground">{date.getDate()}</div>
 
                 <div className="flex flex-wrap gap-1">
-                  {dayShifts.map((shift) => (
-                    <button
-                      key={shift.id}
-                      onClick={(e) => handleShiftClick(shift, e)}
-                      className={cn(
-                        "size-7 rounded-full border-2 flex items-center justify-center text-xs",
-                        shiftConfig[shift.shift_type].color,
-                      )}
-                      title={shift.title}
-                    >
-                      {shiftConfig[shift.shift_type].symbol}
-                    </button>
-                  ))}
+                  {dayShifts.map((shift) => {
+                    const shiftState = shift.state || shift.shift_state
+                    return (
+                      <button
+                        key={shift.id}
+                        onClick={(e) => handleShiftClick(shift, e)}
+                        className={cn(
+                          "size-7 rounded-full border-2 flex items-center justify-center text-xs",
+                          stateConfig[shiftState].color,
+                        )}
+                        title={shift.title}
+                      >
+                        {stateConfig[shiftState].symbol}
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
             )
@@ -406,9 +417,12 @@ export function ShiftsCalendar({
               </DialogHeader>
 
               <div className="space-y-4">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Badge className={stateBadgeVariant[selectedShift.state || selectedShift.shift_state]}>
                     {selectedShift.state || selectedShift.shift_state}
+                  </Badge>
+                  <Badge variant="outline">
+                    {shiftTypeLabels[selectedShift.shift_type]}
                   </Badge>
                   <span className="text-sm text-muted-foreground">
                     {selectedShift.bartenders.length} / {selectedShift.bartenders_required} ברמנים
