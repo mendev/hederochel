@@ -56,6 +56,7 @@ export async function GET() {
         created_at: user.created_at,
         last_sign_in_at: user.last_sign_in_at,
         email_confirmed_at: user.email_confirmed_at,
+        banned_until: user.banned_until || null,
         // Profile data from public.profiles table
         full_name: profile?.full_name || null,
         role: profile?.role || null,
@@ -70,6 +71,60 @@ export async function GET() {
       users: safeUsers,
       count: safeUsers.length,
     })
+  } catch (error) {
+    console.error("Unexpected error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
+
+// POST /api/users - Create a new user (admin operation)
+export async function POST(request: Request) {
+  try {
+    const supabase = createAdminClient()
+
+    const body = await request.json()
+    const { email, password, full_name, role } = body
+
+    // Validate required fields
+    if (!email || !password || !full_name || !role) {
+      return NextResponse.json(
+        { error: "Missing required fields: email, password, full_name, role" },
+        { status: 400 }
+      )
+    }
+
+    // Create user in Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        name: full_name,
+      },
+    })
+
+    if (authError) {
+      console.error("Error creating user:", authError)
+      return NextResponse.json({ error: authError.message }, { status: 500 })
+    }
+
+    // Create profile in profiles table
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .insert({
+        id: authData.user.id,
+        full_name,
+        role,
+      })
+
+    if (profileError) {
+      console.error("Error creating profile:", profileError)
+      // Try to delete the auth user if profile creation fails
+      await supabase.auth.admin.deleteUser(authData.user.id)
+      return NextResponse.json({ error: "Failed to create user profile" }, { status: 500 })
+    }
+
+    return NextResponse.json({ user: authData.user }, { status: 201 })
   } catch (error) {
     console.error("Unexpected error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
