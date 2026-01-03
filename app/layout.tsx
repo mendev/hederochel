@@ -1,5 +1,5 @@
 import type React from "react"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 // import { AuthProvider } from "@/contexts/auth-context"
@@ -36,6 +36,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1.0,
+  maximumScale: 1.0,
+  userScalable: false,
 }
 
 export default function RootLayout({

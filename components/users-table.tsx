@@ -135,13 +135,13 @@ export function UsersTable({ onUserClick, refreshKey = 0 }: UsersTableProps) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>Users ({data.count})</span>
+          <span>משתמשים ({data.count})</span>
           {selectedIds.size > 0 && (
             <span className="text-sm font-normal text-muted-foreground">{selectedIds.size} selected</span>
           )}
         </CardTitle>
         <CardDescription>
-          Users fetched via the /api/users serverless function. Select users for bulk actions.
+          רשימת כל המשתמשים הרשומים
         </CardDescription>
       </CardHeader>
       <CardContent>

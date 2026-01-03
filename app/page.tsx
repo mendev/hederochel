@@ -15,7 +15,7 @@ import MyShifts from "@/components/pages/MyShiftsPage"
 import ShiftManagmentPage from "@/components/pages/ShiftManagementPage"
 import { useState, useEffect } from 'react';
 
-type Page = 'menu' | 'my-shifts' | 'shifts' | 'reports' | 'login' | 'receipes' | 'stock' | 'shift-management' | 'reports-management' | 'users' ;
+type Page = 'menu' | 'my-shifts' | 'shifts' | 'reports' | 'login' | 'receipes' | 'shift-management' | 'users' ;
 
 export default function Home() {
   const [activePage, setActivePage] = useState<Page>('menu');
@@ -76,17 +76,10 @@ export default function Home() {
         if (!isAuthenticated) return <MenuPage />;
         if (!(role === 'shift-manager' || role === 'manager')) return <MenuPage />; // or show 403
         return <UnderConstructionPage />;
-      case 'stock':
-        return <UnderConstructionPage />;
       case 'shift-management':
         return <ShiftManagmentPage />;
       case 'users':
         return <UsersPage />;
-      case 'reports-management':
-        if (!isAuthenticated) return <MenuPage />;
-        if (role !== 'manager') return <MenuPage />;
-        // Placeholder components for these pages can be created similarly to others
-        return <UnderConstructionPage />;
       default:
         return <MenuPage />;
     }
@@ -158,22 +151,14 @@ export default function Home() {
               >
               מתכונים
               </button>
-              {(role === 'manager' || role === 'shift-manager') && (
-                <button
+              {role === 'manager' && (
+                  <>
+                  <button
                   className={`nav-button ${activePage === 'reports' ? 'active' : ''}` }
                   onClick={() => handlePageChange('reports')}
                 >
                   דוחות
                 </button>
-              )}
-              {role === 'manager' && (
-                  <>
-                  <button
-                    className={`nav-button ${activePage === 'stock' ? 'active' : ''}` }
-                    onClick={() => handlePageChange('stock')}
-                  >
-                    ניהול מלאי
-                  </button>
                   <button
                     className={`nav-button ${activePage === 'users' ? 'active' : ''}` }
                     onClick={() => handlePageChange('users')}
@@ -185,12 +170,6 @@ export default function Home() {
                     onClick={() => handlePageChange('shift-management')}
                   >
                     ניהול משמרות
-                  </button>
-                  <button
-                    className={`nav-button ${activePage === 'reports-management' ? 'active' : ''}` }
-                    onClick={() => handlePageChange('reports-management')}
-                  >
-                    ניהול דוחות
                   </button>
                   </>
                 )}

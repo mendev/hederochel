@@ -132,6 +132,7 @@ body {
   flex-direction: column;
   align-items: flex-start;
   gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .sidebar-header > div {
@@ -165,10 +166,10 @@ body {
 .sidebar-nav {
   flex: 1;
   padding: 1rem;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  min-height: 0; /* Allow flex children to shrink properly */
 }
 
 .nav-button {
@@ -181,6 +182,7 @@ body {
   font-size: 0.95rem;
   color: var(--text-primary);
   transition: background-color 0.2s;
+  -webkit-tap-highlight-color: transparent; /* Remove tap highlight on iOS */
 }
 
 .nav-button:hover {
@@ -205,6 +207,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .user-info {
@@ -223,6 +226,10 @@ body {
   font-size: 0.875rem;
   cursor: pointer;
   transition: color 0.2s;
+  display: inline-block;
+  padding: 0.5rem 0;
+  min-height: 44px; /* Better touch target on mobile */
+  line-height: 1.5;
 }
 
 .logout-link:hover {
@@ -383,11 +390,16 @@ body {
     top: 0;
     right: 0;
     bottom: 0;
+    height: 100vh;
+    height: 100dvh; /* Use dynamic viewport height for mobile browsers */
     width: 280px;
     max-width: 80vw;
     z-index: 1000;
     transform: translateX(100%);
     box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
+    overflow-y: auto; /* Enable scrolling on mobile */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    overscroll-behavior: contain; /* Prevent scroll chaining */
   }
 
   .sidebar.open {
@@ -460,6 +472,7 @@ body {
     padding: 1rem 1.25rem;
     font-size: 1rem;
     min-height: 48px; /* Better touch target */
+    touch-action: manipulation; /* Allow scrolling while tapping */
   }
 
   /* Sidebar Footer */
@@ -810,7 +823,7 @@ body {
 
 .users-table {
   width: 100%;
-  color: #000;
+  color: #fff;
   font-size: large;
   border: #000 0px solid;
 }
