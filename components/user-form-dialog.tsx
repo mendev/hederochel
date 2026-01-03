@@ -269,10 +269,10 @@ export function UserFormDialog({
                   setFormData({ ...formData, role: value })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-[#1A3535] border-[#2C5F5F]">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-[#1A3535] border-[#2C5F5F]">
                   <SelectItem value="bartender">ברמן</SelectItem>
                   <SelectItem value="manager">מנהל משמרת</SelectItem>
                   <SelectItem value="admin">מנהל</SelectItem>
