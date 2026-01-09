@@ -156,10 +156,11 @@ body {
   color: var(--text-primary);
 }
 
-.app-subtitle {
+.app-subtitle div {
   font-size: 0.875rem;
   color: var(--text-secondary);
   margin: 0;
+  text-align: center;
 }
 
 /* Sidebar Navigation */
@@ -271,7 +272,7 @@ body {
   margin-top: 0;
   margin-bottom: 1rem;
   color: var(--text-primary);
-  text-align: right;
+  text-align: center;
   font-size: 1.75rem;
 }
 
@@ -279,7 +280,7 @@ body {
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
   color: var(--text-primary);
-  text-align: right;
+  text-align: center;
   font-size: 1.25rem;
 }
 
@@ -463,9 +464,9 @@ body {
     font-size: 1.1rem;
   }
 
-  .app-subtitle {
+  /* .app-subtitle {
     font-size: 0.8rem;
-  }
+  } */
 
   /* Navigation Buttons - Larger touch targets */
   .nav-button {

@@ -14,11 +14,12 @@ import LoginPage from "@/components/pages/LoginPage"
 import MyShifts from "@/components/pages/MyShiftsPage"
 import ShiftManagmentPage from "@/components/pages/ShiftManagementPage"
 import { useState, useEffect } from 'react';
+import DefaultPage from "@/components/pages/DefaultPage"
 
-type Page = 'menu' | 'my-shifts' | 'shifts' | 'reports' | 'login' | 'receipes' | 'shift-management' | 'users' ;
+type Page = 'menu' | 'my-shifts' | 'shifts' | 'reports' | 'login' | 'receipes' | 'shift-management' | 'users' | 'default';
 
 export default function Home() {
-  const [activePage, setActivePage] = useState<Page>('menu');
+  const [activePage, setActivePage] = useState<Page>('default');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   
@@ -45,8 +46,6 @@ export default function Home() {
     if ((page === 'shifts' || page === 'receipes' || page == 'my-shifts' ) && !isAuthenticated) {
       setActivePage('menu');
     } else if (page === 'reports' && !(role === 'shift-manager' || role === 'manager')) {
-      setActivePage('menu');
-    } else if ((page === 'stock' || page === 'shift-management' || page === 'reports-management') && role !== 'manager') {
       setActivePage('menu');
     } else {
       setActivePage(page);
@@ -81,7 +80,7 @@ export default function Home() {
       case 'users':
         return <UsersPage />;
       default:
-        return <MenuPage />;
+        return <DefaultPage />;
     }
   };
 
@@ -114,13 +113,12 @@ export default function Home() {
         <header className="sidebar-header">
           <div>
             <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68eac3828de1bc1e5375b02f/5d877b84f_image.png" 
+              src="https://gsjzfetxqdvphqxxmflh.supabase.co/storage/v1/object/sign/image/logo-green-bg%20(1).png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV84YTU4MGFjOC1hYmRjLTRhYmMtYWZjOS1mYzE4ZmIyMjJmZTUiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpbWFnZS9sb2dvLWdyZWVuLWJnICgxKS5wbmciLCJpYXQiOjE3NjgwMDAxMjQsImV4cCI6MTc5OTUzNjEyNH0.4TrmkZ_G-g39WM7AQ_WZZf7Eddd6EAWXxi4_49os8uc" 
               alt="חדר אוכל"
               className="logo-image"
             />
             <h1 className="app-title">חדר אוכל</h1>
           </div>
-          <h3 className="app-subtitle">הפאב הקהילתי של מושב לכיש</h3>
         </header>
 
         {/* Main Navigation Section */}
