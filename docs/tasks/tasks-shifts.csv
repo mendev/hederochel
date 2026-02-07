@@ -1,0 +1,16 @@
+ID,Title,Description,Related Story,Related Requirement,Status,Priority
+TSK-SHF-001,Create shift API,Implement API endpoint for managers to create a shift with date; time; location; and capacity,US-SHF-001,REQ-SHF-001,done,High
+TSK-SHF-002,Edit shift API,Implement API endpoint for managers to update an existing shift's details,US-SHF-002,REQ-SHF-002,done,High
+TSK-SHF-003,Delete shift API,Implement API endpoint for managers to delete a shift,US-SHF-003,REQ-SHF-003,done,High
+TSK-SHF-004,View all shifts (manager),Allow managers to view all shifts across all dates in a calendar view,US-SHF-004,REQ-SHF-004,done,High
+TSK-SHF-005,View available open shifts (bartender),Allow bartenders to browse open shifts they can sign up for,US-SHF-005,REQ-SHF-005,done,High
+TSK-SHF-006,Sign up for a shift,Allow bartenders to sign up for an open shift that has remaining capacity,US-SHF-006,REQ-SHF-006,done,High
+TSK-SHF-007,View my upcoming shifts,Allow bartenders to see a list of their upcoming assigned shifts,US-SHF-007,REQ-SHF-007,done,High
+TSK-SHF-008,Cancel shift signup,Allow bartenders to cancel their signup for a future shift,US-SHF-008,REQ-SHF-008,done,High
+TSK-SHF-009,View past completed shifts,Allow bartenders to view their past shifts that have been completed,US-SHF-009,REQ-SHF-009,todo,Medium
+TSK-SHF-010,Shift state: open to full transition,Automatically transition a shift from open to full when all capacity slots are taken,US-SHF-010,REQ-SHF-010,todo,High
+TSK-SHF-011,Shift state: full to open transition,Transition shift back to open when a bartender cancels and capacity becomes available,US-SHF-010,REQ-SHF-011,todo,High
+TSK-SHF-012,Shift state: open/full to running transition,Transition shift to running when the shift start time is reached,US-SHF-010,REQ-SHF-012,todo,High
+TSK-SHF-013,Shift state: running to closed transition,Transition shift to closed when the report is completed or shift end time passes,US-SHF-010,REQ-SHF-013,todo,High
+TSK-SHF-014,Prevent signup for non-open shifts,Block bartenders from signing up for shifts that are full; running; or closed,US-SHF-006,REQ-SHF-014,todo,Medium
+TSK-SHF-015,Prevent suspended users from signing up,Block suspended users from signing up for any shift,US-USR-005; US-SHF-006,REQ-SHF-015,todo,Medium
