@@ -1,0 +1,13 @@
+ID,Title,Description,Related Story,Related Requirement,Status,Priority
+TSK-RPT-001,Auto-create report on shift running,Automatically create a report for a shift when it transitions to the running state,US-RPT-001,REQ-RPT-001,todo,High
+TSK-RPT-002,Bartender access to running shift report,Allow bartenders assigned to a running shift to open and view its report,US-RPT-002,REQ-RPT-002,todo,High
+TSK-RPT-003,Populate report with task template checklist,Fill the report with tasks from the currently active task template,US-RPT-001; US-RPT-003,REQ-RPT-003,todo,High
+TSK-RPT-004,Mark individual tasks as completed,Allow bartenders to check off individual tasks within a shift report,US-RPT-004,REQ-RPT-004,todo,High
+TSK-RPT-005,Add free-text notes to report,Allow bartenders to add free-text notes to a shift report,US-RPT-005,REQ-RPT-005,todo,Medium
+TSK-RPT-006,Auto-complete report when all tasks done,Mark the report as done when all checklist tasks are completed,US-RPT-004,REQ-RPT-006,todo,Medium
+TSK-RPT-007,CRUD task templates,Allow managers to create; edit; and delete task templates with ordered task items,US-RPT-006,REQ-RPT-007,todo,High
+TSK-RPT-008,Set active task template,Allow managers to designate one task template as the active template for new reports,US-RPT-007,REQ-RPT-008,todo,High
+TSK-RPT-009,Delete non-active task template,Allow managers to delete a task template only if it is not the currently active one,US-RPT-006,REQ-RPT-009,todo,Low
+TSK-RPT-010,View completed reports,Allow managers to view completed reports for any closed shift,US-RPT-008,REQ-RPT-010,todo,High
+TSK-RPT-011,Show task completion details in report,Display which bartender completed each task and the timestamp in completed reports,US-RPT-008,REQ-RPT-011,todo,Medium
+TSK-RPT-012,Lock report after shift closes,Make reports read-only once the associated shift transitions to closed,US-RPT-009,REQ-RPT-012,todo,Medium
