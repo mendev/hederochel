@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import useSWR from "swr"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -39,14 +39,25 @@ const fetcher = async (url: string) => {
 interface UsersTableProps {
   onUserClick?: (user: User) => void
   refreshKey?: number
+  onSelectionChange?: (selectedIds: Set<string>, selectedUsers: User[]) => void
+  clearSelectionKey?: number
 }
 
-export function UsersTable({ onUserClick, refreshKey = 0 }: UsersTableProps) {
+export function UsersTable({ onUserClick, refreshKey = 0, onSelectionChange, clearSelectionKey = 0 }: UsersTableProps) {
   const { data, error, isLoading } = useSWR<{ users: User[]; count: number }>(
     `/api/users?refresh=${refreshKey}`,
     fetcher
   )
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+
+  useEffect(() => {
+    const selected = data?.users?.filter((u) => selectedIds.has(u.id)) ?? []
+    onSelectionChange?.(selectedIds, selected)
+  }, [selectedIds, onSelectionChange, data?.users])
+
+  useEffect(() => {
+    setSelectedIds(new Set())
+  }, [clearSelectionKey])
 
   // Toggle single user selection
   const toggleSelection = (userId: string) => {
@@ -215,8 +226,3 @@ export function UsersTable({ onUserClick, refreshKey = 0 }: UsersTableProps) {
   )
 }
 
-// Export selected IDs getter for parent components to use
-export function useUsersTableSelection() {
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  return { selectedIds, setSelectedIds }
-}
