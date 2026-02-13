@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { cleanupTestUser } from './helpers/cleanup';
 
 test.describe.serial('User management lifecycle', () => {
   const newUserEmail = `test-user-${Date.now()}@test.com`;
@@ -16,6 +17,10 @@ test.describe.serial('User management lifecycle', () => {
     }
     managerEmail = process.env.TEST_MANAGER_EMAIL;
     managerPassword = process.env.TEST_MANAGER_PASSWORD;
+  });
+
+  test.afterAll(async () => {
+    await cleanupTestUser(newUserEmail);
   });
 
   test('Step 1 — Manager logs in', async ({ page }) => {
