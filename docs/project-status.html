@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="he" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hederochel - Project Status</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232736;
+    --border: #2e3348;
+    --text: #e4e6f0;
+    --text-dim: #8b8fa8;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --green: #00d2a0;
+    --green-dim: #00d2a033;
+    --yellow: #fdcb6e;
+    --yellow-dim: #fdcb6e33;
+    --red: #ff6b81;
+    --red-dim: #ff6b8133;
+    --blue: #74b9ff;
+    --blue-dim: #74b9ff33;
+  }
+
+  body {
+    font-family: 'Heebo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* --- Slides --- */
+  .slide {
+    min-height: 100vh;
+    padding: 60px 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .slide::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at 30% 20%, rgba(108,92,231,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* --- Title Slide --- */
+  .title-slide {
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .title-slide h1 {
+    font-size: 4rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent-light), var(--blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 16px;
+  }
+
+  .title-slide .subtitle {
+    font-size: 1.5rem;
+    color: var(--text-dim);
+    font-weight: 300;
+    margin-bottom: 40px;
+  }
+
+  .title-slide .meta {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .meta-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 8px 24px;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+  }
+
+  .meta-chip strong { color: var(--text); }
+
+  /* --- Section Headers --- */
+  h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 40px;
+    position: relative;
+    display: inline-block;
+  }
+
+  h2::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-light));
+    border-radius: 2px;
+    margin-top: 8px;
+  }
+
+  h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--accent-light);
+  }
+
+  /* --- Grid Layouts --- */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+
+  /* --- Cards --- */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+  }
+
+  /* --- Stat Cards --- */
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .stat-number {
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+  }
+
+  .stat-number.green { color: var(--green); }
+  .stat-number.yellow { color: var(--yellow); }
+  .stat-number.blue { color: var(--blue); }
+  .stat-number.accent { color: var(--accent-light); }
+  .stat-number.red { color: var(--red); }
+
+  /* --- Progress Bars --- */
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+
+  .progress-label {
+    width: 180px;
+    font-size: 0.95rem;
+    text-align: left;
+    flex-shrink: 0;
+  }
+
+  .progress-bar-bg {
+    flex: 1;
+    height: 28px;
+    background: var(--surface2);
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 14px;
+    transition: width 1s ease;
+    position: relative;
+  }
+
+  .progress-bar-fill.green { background: linear-gradient(90deg, #00b894, #00d2a0); }
+  .progress-bar-fill.yellow { background: linear-gradient(90deg, #e17055, #fdcb6e); }
+  .progress-bar-fill.blue { background: linear-gradient(90deg, #0984e3, #74b9ff); }
+  .progress-bar-fill.accent { background: linear-gradient(90deg, #6c5ce7, #a29bfe); }
+
+  .progress-pct {
+    width: 52px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+  }
+
+  /* --- Donut Charts (CSS) --- */
+  .donut-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+
+  .donut-wrap {
+    text-align: center;
+  }
+
+  .donut {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    position: relative;
+    margin: 0 auto 16px;
+  }
+
+  .donut-center {
+    position: absolute;
+    inset: 24px;
+    background: var(--surface);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .donut-center .big {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .donut-center .small {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+
+  .donut-label {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  /* --- Feature List --- */
+  .feature-list {
+    list-style: none;
+  }
+
+  .feature-list li {
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.95rem;
+  }
+
+  .feature-list li.done { background: var(--green-dim); }
+  .feature-list li.wip { background: var(--yellow-dim); }
+  .feature-list li.todo { background: var(--red-dim); }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .badge.done { background: var(--green); color: #000; }
+  .badge.wip { background: var(--yellow); color: #000; }
+  .badge.todo { background: var(--red); color: #000; }
+
+  /* --- Tech Stack Pills --- */
+  .tech-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .tech-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tech-pill .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* --- Table --- */
+  .styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .styled-table th {
+    text-align: left;
+    padding: 12px 16px;
+    background: var(--surface2);
+    color: var(--text-dim);
+    font-weight: 600;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .styled-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .styled-table tr:hover td {
+    background: var(--surface2);
+  }
+
+  /* --- Timeline --- */
+  .timeline {
+    position: relative;
+    padding-left: 40px;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--border);
+    border-radius: 2px;
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 24px;
+    padding-left: 20px;
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -33px;
+    top: 6px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 3px solid var(--accent-light);
+    background: var(--bg);
+  }
+
+  .timeline-date {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-bottom: 2px;
+  }
+
+  .timeline-text {
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  /* --- Legend --- */
+  .legend {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+
+  .legend-color {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+  }
+
+  /* --- Horizontal Bar Chart --- */
+  .hbar-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 12px;
+  }
+
+  .hbar-label {
+    width: 140px;
+    font-size: 0.85rem;
+    text-align: left;
+    flex-shrink: 0;
+    color: var(--text-dim);
+  }
+
+  .hbar-bar {
+    height: 20px;
+    border-radius: 10px;
+    min-width: 4px;
+    transition: width 1s ease;
+  }
+
+  .hbar-value {
+    font-size: 0.85rem;
+    font-weight: 600;
+    width: 50px;
+    flex-shrink: 0;
+  }
+
+  /* --- Slide Counter --- */
+  .slide-num {
+    position: absolute;
+    bottom: 24px;
+    left: 40px;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    opacity: 0.5;
+  }
+
+  /* --- Responsive --- */
+  @media (max-width: 900px) {
+    .slide { padding: 40px 24px; }
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .title-slide h1 { font-size: 2.5rem; }
+    .progress-label { width: 120px; }
+  }
+
+  /* --- Print --- */
+  @media print {
+    .slide { page-break-after: always; min-height: auto; padding: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ SLIDE 1: Title ============ -->
+<section class="slide title-slide">
+  <h1>חדר אוכל</h1>
+  <div class="subtitle">Hederochel &mdash; Shift Management System<br>Project Status Report</div>
+  <div class="meta">
+    <span class="meta-chip"><strong>Version</strong> 0.1.0</span>
+    <span class="meta-chip"><strong>Branch</strong> introduce_testing</span>
+    <span class="meta-chip"><strong>Stack</strong> Next.js 16 + React 19 + Supabase</span>
+    <span class="meta-chip"><strong>Date</strong> Feb 2026</span>
+  </div>
+  <div class="slide-num">1 / 8</div>
+</section>
+
+<!-- ============ SLIDE 2: High-Level Overview ============ -->
+<section class="slide">
+  <h2>Project Overview</h2>
+  <p style="color:var(--text-dim); margin-bottom:32px; max-width:720px; font-size:1.05rem;">
+    A full-stack shift management and bartender coordination app for Moshav Lachish's community pub.
+    Bartenders sign up for shifts; managers manage shifts, users, and operations.
+  </p>
+  <div class="grid-4">
+    <div class="stat-card">
+      <div class="stat-number accent">103+</div>
+      <div class="stat-label">Source Files</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number blue">10</div>
+      <div class="stat-label">API Routes</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number green">8</div>
+      <div class="stat-label">Pages / Views</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number yellow">74+</div>
+      <div class="stat-label">UI Components</div>
+    </div>
+  </div>
+
+  <div style="margin-top:40px;">
+    <h3>Tech Stack</h3>
+    <div class="tech-grid">
+      <div class="tech-pill"><span class="dot" style="background:#000"></span> Next.js 16</div>
+      <div class="tech-pill"><span class="dot" style="background:#61dafb"></span> React 19</div>
+      <div class="tech-pill"><span class="dot" style="background:#3178c6"></span> TypeScript 5</div>
+      <div class="tech-pill"><span class="dot" style="background:#38bdf8"></span> Tailwind CSS 4</div>
+      <div class="tech-pill"><span class="dot" style="background:#3ecf8e"></span> Supabase</div>
+      <div class="tech-pill"><span class="dot" style="background:#6c5ce7"></span> Radix UI / Shadcn</div>
+      <div class="tech-pill"><span class="dot" style="background:#ff6b81"></span> Playwright</div>
+      <div class="tech-pill"><span class="dot" style="background:#fdcb6e"></span> SWR</div>
+      <div class="tech-pill"><span class="dot" style="background:#e17055"></span> Zod + React Hook Form</div>
+    </div>
+  </div>
+  <div class="slide-num">2 / 8</div>
+</section>
+
+<!-- ============ SLIDE 3: Feature Progress ============ -->
+<section class="slide">
+  <h2>Feature Development Progress</h2>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-color" style="background:var(--green)"></div> Complete</div>
+    <div class="legend-item"><div class="legend-color" style="background:var(--yellow)"></div> In Progress</div>
+    <div class="legend-item"><div class="legend-color" style="background:var(--red)"></div> Not Started</div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <h3>Bartender Workflows</h3>
+      <ul class="feature-list">
+        <li class="done"><span class="badge done">Done</span> Log in / Sign out</li>
+        <li class="done"><span class="badge done">Done</span> View available open shifts</li>
+        <li class="done"><span class="badge done">Done</span> Sign up for a shift</li>
+        <li class="done"><span class="badge done">Done</span> View my upcoming shifts</li>
+        <li class="done"><span class="badge done">Done</span> Cancel shift signup</li>
+        <li class="todo"><span class="badge todo">Todo</span> Sign up for account (self-serve)</li>
+        <li class="todo"><span class="badge todo">Todo</span> Access shift report</li>
+        <li class="todo"><span class="badge todo">Todo</span> Complete tasks in report</li>
+        <li class="todo"><span class="badge todo">Todo</span> View past shifts history</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Manager Workflows</h3>
+      <ul class="feature-list">
+        <li class="done"><span class="badge done">Done</span> Create / Edit / Delete shifts</li>
+        <li class="done"><span class="badge done">Done</span> View all shifts (any status)</li>
+        <li class="done"><span class="badge done">Done</span> Create / Edit users</li>
+        <li class="done"><span class="badge done">Done</span> Suspend / Unsuspend users</li>
+        <li class="done"><span class="badge done">Done</span> Delete users</li>
+        <li class="todo"><span class="badge todo">Todo</span> Manage task templates</li>
+        <li class="todo"><span class="badge todo">Todo</span> View completed reports</li>
+        <li class="todo"><span class="badge todo">Todo</span> Report history & analytics</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;">
+    <h3>UI Pages</h3>
+    <ul class="feature-list" style="columns: 2; column-gap: 32px;">
+      <li class="done"><span class="badge done">Done</span> Login page</li>
+      <li class="done"><span class="badge done">Done</span> Bartender dashboard</li>
+      <li class="done"><span class="badge done">Done</span> Manager dashboard</li>
+      <li class="done"><span class="badge done">Done</span> User management page</li>
+      <li class="done"><span class="badge done">Done</span> Shift management page</li>
+      <li class="done"><span class="badge done">Done</span> Shift calendar view</li>
+      <li class="todo"><span class="badge todo">Todo</span> Shift detail page</li>
+      <li class="todo"><span class="badge todo">Todo</span> Report filling interface</li>
+      <li class="todo"><span class="badge todo">Todo</span> Task template management</li>
+      <li class="wip"><span class="badge wip">WIP</span> Default page w/ messages</li>
+      <li class="todo"><span class="badge todo">Todo</span> Recipes page</li>
+    </ul>
+  </div>
+  <div class="slide-num">3 / 8</div>
+</section>
+
+<!-- ============ SLIDE 4: Module Progress Bars ============ -->
+<section class="slide">
+  <h2>Module Completion</h2>
+
+  <div style="max-width: 860px;">
+    <div class="progress-row">
+      <div class="progress-label">Authentication</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill green" style="width:90%"></div></div>
+      <div class="progress-pct" style="color:var(--green)">90%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">User Management</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill green" style="width:85%"></div></div>
+      <div class="progress-pct" style="color:var(--green)">85%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Shift Management</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill green" style="width:80%"></div></div>
+      <div class="progress-pct" style="color:var(--green)">80%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Shift Calendar UI</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill green" style="width:85%"></div></div>
+      <div class="progress-pct" style="color:var(--green)">85%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">My Shifts View</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill green" style="width:75%"></div></div>
+      <div class="progress-pct" style="color:var(--green)">75%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Navigation & Layout</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill green" style="width:95%"></div></div>
+      <div class="progress-pct" style="color:var(--green)">95%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">UI Component Library</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill green" style="width:100%"></div></div>
+      <div class="progress-pct" style="color:var(--green)">100%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">API Routes</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill accent" style="width:70%"></div></div>
+      <div class="progress-pct" style="color:var(--accent-light)">70%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Business Logic</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill yellow" style="width:30%"></div></div>
+      <div class="progress-pct" style="color:var(--yellow)">30%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Reports & Analytics</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill yellow" style="width:0%"></div></div>
+      <div class="progress-pct" style="color:var(--red)">0%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Task Templates</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill yellow" style="width:0%"></div></div>
+      <div class="progress-pct" style="color:var(--red)">0%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Recipes</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill yellow" style="width:5%"></div></div>
+      <div class="progress-pct" style="color:var(--red)">5%</div>
+    </div>
+  </div>
+  <div class="slide-num">4 / 8</div>
+</section>
+
+<!-- ============ SLIDE 5: Overall Progress Donuts ============ -->
+<section class="slide">
+  <h2>Overall Progress</h2>
+
+  <div class="donut-container">
+    <!-- Bartender workflows: 5/9 -->
+    <div class="donut-wrap">
+      <div class="donut" style="background: conic-gradient(var(--green) 0deg 200deg, var(--red) 200deg 360deg);">
+        <div class="donut-center">
+          <span class="big" style="color:var(--green)">56%</span>
+          <span class="small">5 / 9</span>
+        </div>
+      </div>
+      <div class="donut-label">Bartender Workflows</div>
+    </div>
+    <!-- Manager workflows: 5/8 -->
+    <div class="donut-wrap">
+      <div class="donut" style="background: conic-gradient(var(--blue) 0deg 225deg, var(--red) 225deg 360deg);">
+        <div class="donut-center">
+          <span class="big" style="color:var(--blue)">63%</span>
+          <span class="small">5 / 8</span>
+        </div>
+      </div>
+      <div class="donut-label">Manager Workflows</div>
+    </div>
+    <!-- UI Pages: 6/11 -->
+    <div class="donut-wrap">
+      <div class="donut" style="background: conic-gradient(var(--accent-light) 0deg 196deg, var(--yellow) 196deg 229deg, var(--red) 229deg 360deg);">
+        <div class="donut-center">
+          <span class="big" style="color:var(--accent-light)">55%</span>
+          <span class="small">6 / 11</span>
+        </div>
+      </div>
+      <div class="donut-label">UI Pages</div>
+    </div>
+    <!-- Business Logic: ~2.5/8 -->
+    <div class="donut-wrap">
+      <div class="donut" style="background: conic-gradient(var(--yellow) 0deg 108deg, var(--red) 108deg 360deg);">
+        <div class="donut-center">
+          <span class="big" style="color:var(--yellow)">30%</span>
+          <span class="small">~2 / 8</span>
+        </div>
+      </div>
+      <div class="donut-label">Business Logic Rules</div>
+    </div>
+  </div>
+
+  <div style="margin-top:48px; text-align:center;">
+    <div style="display:inline-block; background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:24px 48px;">
+      <div style="font-size:0.9rem; color:var(--text-dim); margin-bottom:4px;">Estimated Overall Completion</div>
+      <div style="font-size:3.5rem; font-weight:800; background:linear-gradient(135deg,var(--green),var(--blue)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">~55%</div>
+    </div>
+  </div>
+  <div class="slide-num">5 / 8</div>
+</section>
+
+<!-- ============ SLIDE 6: Test Coverage ============ -->
+<section class="slide">
+  <h2>Test Coverage</h2>
+
+  <div class="grid-2">
+    <div>
+      <div class="grid-3" style="margin-bottom:32px;">
+        <div class="stat-card">
+          <div class="stat-number green">3</div>
+          <div class="stat-label">Test Files</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number blue">8</div>
+          <div class="stat-label">Total Test Cases</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number accent">E2E</div>
+          <div class="stat-label">Test Type</div>
+        </div>
+      </div>
+
+      <h3>Test Files</h3>
+      <table class="styled-table">
+        <thead>
+          <tr><th>File</th><th>Tests</th><th>Coverage Area</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>login.spec.ts</code></td>
+            <td>1</td>
+            <td>User login flow</td>
+          </tr>
+          <tr>
+            <td><code>manager-login.spec.ts</code></td>
+            <td>1</td>
+            <td>Manager login + nav visibility</td>
+          </tr>
+          <tr>
+            <td><code>user-management-flow.spec.ts</code></td>
+            <td>6</td>
+            <td>Full user CRUD lifecycle</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3>Feature Test Coverage</h3>
+      <div style="margin-bottom:24px;">
+        <div class="progress-row">
+          <div class="progress-label">Authentication</div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill green" style="width:70%"></div></div>
+          <div class="progress-pct" style="color:var(--green)">70%</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">User Management</div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill green" style="width:60%"></div></div>
+          <div class="progress-pct" style="color:var(--green)">60%</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">Shift Management</div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill yellow" style="width:0%"></div></div>
+          <div class="progress-pct" style="color:var(--red)">0%</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">Shift Calendar</div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill yellow" style="width:0%"></div></div>
+          <div class="progress-pct" style="color:var(--red)">0%</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">My Shifts</div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill yellow" style="width:0%"></div></div>
+          <div class="progress-pct" style="color:var(--red)">0%</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">Navigation / RBAC</div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill green" style="width:50%"></div></div>
+          <div class="progress-pct" style="color:var(--yellow)">50%</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label">API Routes</div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill yellow" style="width:0%"></div></div>
+          <div class="progress-pct" style="color:var(--red)">0%</div>
+        </div>
+      </div>
+
+      <div style="background:var(--yellow-dim); border:1px solid var(--yellow); border-radius:12px; padding:16px 20px;">
+        <strong style="color:var(--yellow);">Coverage Gap Alert</strong>
+        <p style="font-size:0.9rem; margin-top:4px; color:var(--text-dim);">
+          Shift management, calendar, and API routes have <strong>zero</strong> test coverage.
+          These are critical paths that should be prioritized for testing.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;">
+    <h3>User Management Flow &mdash; Test Breakdown</h3>
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <div style="flex:1; min-width:140px; background:var(--green-dim); border-radius:12px; padding:16px; text-align:center;">
+        <div style="font-size:0.75rem; color:var(--text-dim);">Step 1</div>
+        <div style="font-weight:600; font-size:0.9rem;">Manager Login</div>
+      </div>
+      <div style="display:flex; align-items:center; color:var(--text-dim);">&rarr;</div>
+      <div style="flex:1; min-width:140px; background:var(--green-dim); border-radius:12px; padding:16px; text-align:center;">
+        <div style="font-size:0.75rem; color:var(--text-dim);">Step 2</div>
+        <div style="font-weight:600; font-size:0.9rem;">Create User</div>
+      </div>
+      <div style="display:flex; align-items:center; color:var(--text-dim);">&rarr;</div>
+      <div style="flex:1; min-width:140px; background:var(--green-dim); border-radius:12px; padding:16px; text-align:center;">
+        <div style="font-size:0.75rem; color:var(--text-dim);">Step 3</div>
+        <div style="font-weight:600; font-size:0.9rem;">Manager Logout</div>
+      </div>
+      <div style="display:flex; align-items:center; color:var(--text-dim);">&rarr;</div>
+      <div style="flex:1; min-width:140px; background:var(--blue-dim); border-radius:12px; padding:16px; text-align:center;">
+        <div style="font-size:0.75rem; color:var(--text-dim);">Step 4</div>
+        <div style="font-weight:600; font-size:0.9rem;">New User Login</div>
+      </div>
+      <div style="display:flex; align-items:center; color:var(--text-dim);">&rarr;</div>
+      <div style="flex:1; min-width:140px; background:var(--blue-dim); border-radius:12px; padding:16px; text-align:center;">
+        <div style="font-size:0.75rem; color:var(--text-dim);">Step 5</div>
+        <div style="font-weight:600; font-size:0.9rem;">New User Logout</div>
+      </div>
+      <div style="display:flex; align-items:center; color:var(--text-dim);">&rarr;</div>
+      <div style="flex:1; min-width:140px; background:var(--red-dim); border-radius:12px; padding:16px; text-align:center;">
+        <div style="font-size:0.75rem; color:var(--text-dim);">Step 6</div>
+        <div style="font-weight:600; font-size:0.9rem;">Delete User</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">6 / 8</div>
+</section>
+
+<!-- ============ SLIDE 7: Codebase Breakdown ============ -->
+<section class="slide">
+  <h2>Codebase Breakdown</h2>
+
+  <div class="grid-2">
+    <div>
+      <h3>Lines of Code by Area</h3>
+      <div style="margin-top:12px;">
+        <div class="hbar-row">
+          <div class="hbar-label">UI Components</div>
+          <div class="hbar-bar" style="width:280px; background:linear-gradient(90deg,var(--accent),var(--accent-light))"></div>
+          <div class="hbar-value" style="color:var(--accent-light)">74 files</div>
+        </div>
+        <div class="hbar-row">
+          <div class="hbar-label">Page Components</div>
+          <div class="hbar-bar" style="width:160px; background:linear-gradient(90deg,var(--blue),#a4d4ff)"></div>
+          <div class="hbar-value" style="color:var(--blue)">~1,060 loc</div>
+        </div>
+        <div class="hbar-row">
+          <div class="hbar-label">API Routes</div>
+          <div class="hbar-bar" style="width:140px; background:linear-gradient(90deg,var(--green),#6fffd0)"></div>
+          <div class="hbar-value" style="color:var(--green)">~966 loc</div>
+        </div>
+        <div class="hbar-row">
+          <div class="hbar-label">Custom Components</div>
+          <div class="hbar-bar" style="width:120px; background:linear-gradient(90deg,var(--yellow),#ffe8a0)"></div>
+          <div class="hbar-value" style="color:var(--yellow)">~830 loc</div>
+        </div>
+        <div class="hbar-row">
+          <div class="hbar-label">Auth Context</div>
+          <div class="hbar-bar" style="width:40px; background:linear-gradient(90deg,var(--red),#ffa0b0)"></div>
+          <div class="hbar-value" style="color:var(--red)">131 loc</div>
+        </div>
+        <div class="hbar-row">
+          <div class="hbar-label">Tests</div>
+          <div class="hbar-bar" style="width:36px; background:linear-gradient(90deg,#e17055,#fab1a0)"></div>
+          <div class="hbar-value" style="color:#fab1a0">~170 loc</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h3>API Routes Inventory</h3>
+      <table class="styled-table">
+        <thead>
+          <tr><th>Route</th><th>Methods</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>/api/auth/user</code></td><td>GET</td><td><span class="badge done">Live</span></td></tr>
+          <tr><td><code>/api/auth/signup</code></td><td>POST</td><td><span class="badge done">Live</span></td></tr>
+          <tr><td><code>/api/users</code></td><td>GET, POST</td><td><span class="badge done">Live</span></td></tr>
+          <tr><td><code>/api/users/[id]</code></td><td>PUT, PATCH, DELETE</td><td><span class="badge done">Live</span></td></tr>
+          <tr><td><code>/api/shifts</code></td><td>GET, POST</td><td><span class="badge done">Live</span></td></tr>
+          <tr><td><code>/api/shifts/[id]</code></td><td>PATCH</td><td><span class="badge done">Live</span></td></tr>
+          <tr><td><code>/api/me</code></td><td>GET</td><td><span class="badge done">Live</span></td></tr>
+          <tr><td><code>/api/health</code></td><td>GET</td><td><span class="badge done">Live</span></td></tr>
+          <tr><td><code>/api/reports/*</code></td><td>&mdash;</td><td><span class="badge todo">Planned</span></td></tr>
+          <tr><td><code>/api/tasks/*</code></td><td>&mdash;</td><td><span class="badge todo">Planned</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-num">7 / 8</div>
+</section>
+
+<!-- ============ SLIDE 8: Roadmap & Next Steps ============ -->
+<section class="slide">
+  <h2>Development Timeline & Next Steps</h2>
+
+  <div class="grid-2">
+    <div>
+      <h3>Recent Milestones</h3>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-date">Latest</div>
+          <div class="timeline-text">E2E testing with Playwright &mdash; user management flow</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Recent</div>
+          <div class="timeline-text">User management &mdash; CRUD, suspend, role changes</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Recent</div>
+          <div class="timeline-text">Shift signup / signoff &mdash; bartender workflow</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Earlier</div>
+          <div class="timeline-text">Supabase integration &mdash; auth, database, admin client</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Earlier</div>
+          <div class="timeline-text">Initial UI &mdash; Shadcn components, RTL layout</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">Start</div>
+          <div class="timeline-text">Project bootstrap &mdash; Next.js 16, docs, architecture</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h3>Upcoming Priorities</h3>
+      <div class="card" style="margin-bottom:16px; border-left:4px solid var(--red);">
+        <strong style="color:var(--red);">High Priority</strong>
+        <ul style="margin-top:8px; padding-left:20px; font-size:0.9rem; color:var(--text-dim); list-style:disc;">
+          <li>Business logic rules (shift state transitions, validations)</li>
+          <li>Edge case handling (overlapping shifts, past-shift signup)</li>
+          <li>E2E tests for shift management flows</li>
+        </ul>
+      </div>
+      <div class="card" style="margin-bottom:16px; border-left:4px solid var(--yellow);">
+        <strong style="color:var(--yellow);">Medium Priority</strong>
+        <ul style="margin-top:8px; padding-left:20px; font-size:0.9rem; color:var(--text-dim); list-style:disc;">
+          <li>Reports & analytics module</li>
+          <li>Task templates for shifts</li>
+          <li>Self-serve signup flow</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:4px solid var(--blue);">
+        <strong style="color:var(--blue);">Future</strong>
+        <ul style="margin-top:8px; padding-left:20px; font-size:0.9rem; color:var(--text-dim); list-style:disc;">
+          <li>Recipes page</li>
+          <li>Default page with system messages</li>
+          <li>Performance optimizations</li>
+          <li>API route tests (unit / integration)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">8 / 8</div>
+</section>
+
+</body>
+</html>
