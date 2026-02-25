@@ -13,7 +13,7 @@ test.describe.serial('User self-signup flow', () => {
     await page.click('button.signup-button');
 
     // Verify the signup dialog opened
-    await expect(page.locator('text=הרשמה למערכת')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=הרשמה למערכת')).toBeVisible();
 
     // Fill signup form
     await page.fill('#signup-email', signupEmail);
@@ -25,7 +25,7 @@ test.describe.serial('User self-signup flow', () => {
     await page.locator('[role="dialog"] button[type="submit"]').click();
 
     // Verify success message
-    await expect(page.locator('text=המשתמש נוצר בהצלחה!')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=המשתמש נוצר בהצלחה!')).toBeVisible();
   });
 
   test('newly registered user can log in', async ({ page }) => {
@@ -37,7 +37,7 @@ test.describe.serial('User self-signup flow', () => {
     await page.click('button.login-button');
 
     // Should see bartender nav items (default role for self-signup)
-    await expect(page.locator('nav.sidebar-nav >> text=המשמרות שלי')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('nav.sidebar-nav >> text=המשמרות שלי')).toBeVisible();
     // Should NOT see manager-only items
     await expect(page.locator('nav.sidebar-nav >> text=ניהול משתמשים')).not.toBeVisible();
   });
@@ -54,15 +54,15 @@ test.describe.serial('User self-signup flow', () => {
     await page.fill('#email', managerEmail);
     await page.fill('#password', managerPassword);
     await page.click('button.login-button');
-    await expect(page.locator('nav.sidebar-nav >> text=ניהול משתמשים')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('nav.sidebar-nav >> text=ניהול משתמשים')).toBeVisible();
 
     await page.click('nav.sidebar-nav >> text=ניהול משתמשים');
-    await expect(page.locator('.users-table')).toContainText(signupEmail, { timeout: 10000 });
+    await expect(page.locator('.users-table')).toContainText(signupEmail);
 
     await page.click(`.users-table >> text=${signupEmail}`);
     page.on('dialog', (dialog) => dialog.accept());
     await page.click('button:has-text("מחק משתמש")');
 
-    await expect(page.locator('.users-table')).not.toContainText(signupEmail, { timeout: 10000 });
+    await expect(page.locator('.users-table')).not.toContainText(signupEmail);
   });
 });

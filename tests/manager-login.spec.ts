@@ -27,7 +27,7 @@ test('manager can log in and see management nav items', async ({ page }) => {
   await page.click('button.login-button');
 
   // After login, the sidebar should show authenticated nav items
-  await expect(page.locator('nav.sidebar-nav >> text=המשמרות שלי')).toBeVisible({ timeout: 10000 });
+  await expect(page.locator('nav.sidebar-nav >> text=המשמרות שלי')).toBeVisible();
   await expect(page.locator('nav.sidebar-nav >> text=התחבר')).not.toBeVisible();
 
   // Manager-only nav items should be visible

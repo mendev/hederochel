@@ -378,17 +378,18 @@ export function ShiftsCalendar({
                 <div className="flex flex-wrap gap-1">
                   {dayShifts.map((shift) => {
                     const shiftState = shift.state || shift.shift_state
+                    const config = stateConfig[shiftState] ?? stateConfig["פתוחה"]
                     return (
                       <button
                         key={shift.id}
                         onClick={(e) => handleShiftClick(shift, e)}
                         className={cn(
                           "size-7 rounded-full border-2 flex items-center justify-center text-xs",
-                          stateConfig[shiftState].color,
+                          config.color,
                         )}
                         title={shift.title}
                       >
-                        {stateConfig[shiftState].symbol}
+                        {config.symbol}
                       </button>
                     )
                   })}
@@ -418,8 +419,8 @@ export function ShiftsCalendar({
 
               <div className="space-y-4">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Badge className={stateBadgeVariant[selectedShift.state || selectedShift.shift_state]}>
-                    {selectedShift.state || selectedShift.shift_state}
+                  <Badge className={stateBadgeVariant[selectedShift.state || selectedShift.shift_state] ?? stateBadgeVariant["פתוחה"]}>
+                    {selectedShift.state || selectedShift.shift_state || "לא ידוע"}
                   </Badge>
                   <Badge variant="outline">
                     {shiftTypeLabels[selectedShift.shift_type]}

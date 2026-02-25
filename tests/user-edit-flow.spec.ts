@@ -25,9 +25,9 @@ test.describe.serial('User edit flow', () => {
     await page.fill('#email', managerEmail);
     await page.fill('#password', managerPassword);
     await page.click('button.login-button');
-    await expect(page.locator('nav.sidebar-nav >> text=ניהול משתמשים')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('nav.sidebar-nav >> text=ניהול משתמשים')).toBeVisible();
     await page.click('nav.sidebar-nav >> text=ניהול משתמשים');
-    await expect(page.locator('.users-table')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('.users-table')).toBeVisible();
   }
 
   test('setup — manager creates a test user', async ({ page }) => {
@@ -39,7 +39,7 @@ test.describe.serial('User edit flow', () => {
     await page.fill('#password', testPassword);
     await page.click('button[type="submit"]:has-text("הוסף")');
 
-    await expect(page.locator('.users-table')).toContainText(testEmail, { timeout: 10000 });
+    await expect(page.locator('.users-table')).toContainText(testEmail);
   });
 
   test('manager can edit user name', async ({ page }) => {
@@ -47,7 +47,7 @@ test.describe.serial('User edit flow', () => {
 
     // Open the user's edit dialog
     await page.click(`.users-table >> text=${testEmail}`);
-    await expect(page.locator('text=ערוך משתמש')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=ערוך משתמש')).toBeVisible();
 
     // Email field should be disabled in edit mode
     await expect(page.locator('#email')).toBeDisabled();
@@ -57,14 +57,14 @@ test.describe.serial('User edit flow', () => {
     await page.click('button[type="submit"]:has-text("עדכן")');
 
     // Verify updated name appears in the table
-    await expect(page.locator('.users-table')).toContainText(updatedName, { timeout: 10000 });
+    await expect(page.locator('.users-table')).toContainText(updatedName);
   });
 
   test('manager can change user role', async ({ page }) => {
     await loginAsManager(page);
 
     await page.click(`.users-table >> text=${testEmail}`);
-    await expect(page.locator('text=ערוך משתמש')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=ערוך משתמש')).toBeVisible();
 
     // Change role to manager (מנהל משמרת)
     // Note: "מנהל" (admin) is not a valid DB enum value — only bartender, shift-manager, manager
@@ -73,12 +73,12 @@ test.describe.serial('User edit flow', () => {
     await page.click('button[type="submit"]:has-text("עדכן")');
 
     // Wait for the dialog to fully close before interacting with the table
-    await expect(page.locator('[role="dialog"]')).not.toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[role="dialog"]')).not.toBeVisible();
 
     // Re-open the user to verify the role persisted
-    await expect(page.locator('.users-table')).toContainText(testEmail, { timeout: 10000 });
+    await expect(page.locator('.users-table')).toContainText(testEmail);
     await page.click(`.users-table >> text=${testEmail}`);
-    await expect(page.locator('text=ערוך משתמש')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=ערוך משתמש')).toBeVisible();
 
     // Role dropdown should show the manager value
     await expect(page.locator('[role="dialog"] [data-slot="select-trigger"]')).toContainText('מנהל משמרת');
@@ -88,7 +88,7 @@ test.describe.serial('User edit flow', () => {
     await loginAsManager(page);
 
     await page.click(`.users-table >> text=${testEmail}`);
-    await expect(page.locator('text=ערוך משתמש')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=ערוך משתמש')).toBeVisible();
 
     // Change role back to bartender before testing password
     await page.locator('[role="dialog"] [data-slot="select-trigger"]').click();
@@ -99,8 +99,8 @@ test.describe.serial('User edit flow', () => {
     await page.click('button[type="submit"]:has-text("עדכן")');
 
     // Wait for dialog to close, then verify table
-    await expect(page.locator('[role="dialog"]')).not.toBeVisible({ timeout: 10000 });
-    await expect(page.locator('.users-table')).toContainText(testEmail, { timeout: 10000 });
+    await expect(page.locator('[role="dialog"]')).not.toBeVisible();
+    await expect(page.locator('.users-table')).toContainText(testEmail);
   });
 
   test('user can log in with the new password', async ({ page }) => {
@@ -111,7 +111,7 @@ test.describe.serial('User edit flow', () => {
     await page.fill('#password', newPassword);
     await page.click('button.login-button');
 
-    await expect(page.locator('nav.sidebar-nav >> text=המשמרות שלי')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('nav.sidebar-nav >> text=המשמרות שלי')).toBeVisible();
   });
 
   test('user cannot log in with the old password', async ({ page }) => {
@@ -122,7 +122,7 @@ test.describe.serial('User edit flow', () => {
     await page.fill('#password', testPassword);
     await page.click('button.login-button');
 
-    await expect(page.locator('.error-message')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('.error-message')).toBeVisible();
   });
 
   test('cleanup — manager deletes the test user', async ({ page }) => {
@@ -132,6 +132,6 @@ test.describe.serial('User edit flow', () => {
     page.on('dialog', (dialog) => dialog.accept());
     await page.click('button:has-text("מחק משתמש")');
 
-    await expect(page.locator('.users-table')).not.toContainText(testEmail, { timeout: 10000 });
+    await expect(page.locator('.users-table')).not.toContainText(testEmail);
   });
 });

@@ -28,6 +28,6 @@ test('user can log in with valid credentials', async ({ page }) => {
 
   // After login, the sidebar should show authenticated-only nav items
   // and the login button should no longer be visible
-  await expect(page.locator('nav.sidebar-nav >> text=המשמרות שלי')).toBeVisible({ timeout: 10000 });
+  await expect(page.locator('nav.sidebar-nav >> text=המשמרות שלי')).toBeVisible();
   await expect(page.locator('nav.sidebar-nav >> text=התחבר')).not.toBeVisible();
 });

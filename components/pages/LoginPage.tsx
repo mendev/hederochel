@@ -18,7 +18,12 @@ function LoginPage() {
       await signIn(email, password);
       // signIn will update AuthContext and redirect as needed
     } catch (err: any) {
-      setError(err?.message || 'שגיאה בהתחברות');
+      const msg: string = err?.message || '';
+      if (msg === 'User is banned') {
+        setError('החשבון שלך מושעה. פנה למנהל');
+      } else {
+        setError(msg || 'שגיאה בהתחברות');
+      }
     }
   };
 

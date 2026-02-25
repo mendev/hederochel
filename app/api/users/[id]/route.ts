@@ -1,11 +1,27 @@
 import { NextResponse } from "next/server"
-import { createAdminClient } from "@/lib/supabase/server"
+import { createAdminClient, createServerClientWithCookies } from "@/lib/supabase/server"
 
-// PUT /api/users/[id] - Update user (admin operation)
+async function requireManager() {
+  const supabase = await createServerClientWithCookies()
+  const { data: { user }, error } = await supabase.auth.getUser()
+  if (error || !user) {
+    return { forbidden: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) }
+  }
+  const admin = createAdminClient()
+  const { data: profile } = await admin.from("profiles").select("role").eq("id", user.id).single()
+  if (profile?.role !== "manager") {
+    return { forbidden: NextResponse.json({ error: "Forbidden" }, { status: 403 }) }
+  }
+  return { forbidden: null }
+}
+
+// PUT /api/users/[id] - Update user (manager only)
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { forbidden } = await requireManager()
+  if (forbidden) return forbidden
   try {
     const supabase = createAdminClient()
     const { id } = await params
@@ -65,11 +81,13 @@ export async function PUT(
   }
 }
 
-// PATCH /api/users/[id] - Suspend/unsuspend user (admin operation)
+// PATCH /api/users/[id] - Suspend/unsuspend user (manager only)
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { forbidden } = await requireManager()
+  if (forbidden) return forbidden
   try {
     const supabase = createAdminClient()
     const { id } = await params
@@ -136,11 +154,13 @@ export async function PATCH(
   }
 }
 
-// DELETE /api/users/[id] - Delete user (admin operation)
+// DELETE /api/users/[id] - Delete user (manager only)
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { forbidden } = await requireManager()
+  if (forbidden) return forbidden
   try {
     const supabase = createAdminClient()
     const { id } = await params
