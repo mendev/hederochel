@@ -3,6 +3,7 @@ node_modules
 .next/
 **/.next/
 dev-scripts/
+.claude/
 
 # Playwright
 test-results/
