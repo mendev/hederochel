@@ -31,9 +31,9 @@ test.describe.serial('Bulk user actions', () => {
     await page.fill('#email', managerEmail);
     await page.fill('#password', managerPassword);
     await page.click('button.login-button');
-    await expect(page.locator('nav.sidebar-nav >> text=ניהול משתמשים')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('nav.sidebar-nav >> text=ניהול משתמשים')).toBeVisible();
     await page.click('nav.sidebar-nav >> text=ניהול משתמשים');
-    await expect(page.locator('.users-table')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('.users-table')).toBeVisible();
   }
 
   test('setup — manager creates 3 test users', async ({ page }) => {
@@ -45,13 +45,13 @@ test.describe.serial('Bulk user actions', () => {
       await page.fill('#full_name', user.name);
       await page.fill('#password', testPassword);
       await page.click('button[type="submit"]:has-text("הוסף")');
-      await expect(page.locator('.users-table')).toContainText(user.email, { timeout: 10000 });
+      await expect(page.locator('.users-table')).toContainText(user.email);
     }
   });
 
   test('bulk delete — select 2 users and delete them', async ({ page }) => {
     await loginAsManager(page);
-    await expect(page.locator('.users-table')).toContainText(testUsers[0].email, { timeout: 10000 });
+    await expect(page.locator('.users-table')).toContainText(testUsers[0].email);
 
     // Select first two users via their row checkboxes
     for (const user of [testUsers[0], testUsers[1]]) {
@@ -68,7 +68,7 @@ test.describe.serial('Bulk user actions', () => {
     await page.click('[data-testid="bulk-delete-btn"]');
 
     // Verify the two deleted users are gone
-    await expect(page.locator('.users-table')).not.toContainText(testUsers[0].email, { timeout: 10000 });
+    await expect(page.locator('.users-table')).not.toContainText(testUsers[0].email);
     await expect(page.locator('.users-table')).not.toContainText(testUsers[1].email);
 
     // Verify the third user still exists
@@ -80,7 +80,7 @@ test.describe.serial('Bulk user actions', () => {
 
   test('bulk suspend — select remaining user and suspend', async ({ page }) => {
     await loginAsManager(page);
-    await expect(page.locator('.users-table')).toContainText(testUsers[2].email, { timeout: 10000 });
+    await expect(page.locator('.users-table')).toContainText(testUsers[2].email);
 
     // Select the remaining user
     const row = page.locator('tr', { hasText: testUsers[2].email });
@@ -96,7 +96,7 @@ test.describe.serial('Bulk user actions', () => {
 
     // Verify the user now shows the suspended badge
     const updatedRow = page.locator('tr', { hasText: testUsers[2].email });
-    await expect(updatedRow.locator('text=מושעה')).toBeVisible({ timeout: 10000 });
+    await expect(updatedRow.locator('text=מושעה')).toBeVisible();
 
     // Verify the bulk actions bar is gone (selection cleared)
     await expect(page.locator('.bulk-actions-bar')).not.toBeVisible();
@@ -107,7 +107,7 @@ test.describe.serial('Bulk user actions', () => {
 
     // Verify user 3 is suspended from the previous step
     const row = page.locator('tr', { hasText: testUsers[2].email });
-    await expect(row.locator('text=מושעה')).toBeVisible({ timeout: 10000 });
+    await expect(row.locator('text=מושעה')).toBeVisible();
 
     // Select the suspended user
     await row.locator('[role="checkbox"]').click();
@@ -122,7 +122,7 @@ test.describe.serial('Bulk user actions', () => {
 
     // Verify the user now shows the active badge
     const updatedRow = page.locator('tr', { hasText: testUsers[2].email });
-    await expect(updatedRow.locator('text=פעיל')).toBeVisible({ timeout: 10000 });
+    await expect(updatedRow.locator('text=פעיל')).toBeVisible();
 
     // Verify the bulk actions bar is gone (selection cleared)
     await expect(page.locator('.bulk-actions-bar')).not.toBeVisible();

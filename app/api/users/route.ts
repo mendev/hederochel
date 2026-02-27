@@ -1,11 +1,24 @@
 import { NextResponse } from "next/server"
-import { createAdminClient } from "@/lib/supabase/server"
+import { createAdminClient, createServerClientWithCookies } from "@/lib/supabase/server"
 
-// GET /api/users - List all users (admin operation)
-// This requires the service_role key because listing users
-// is a privileged operation in Supabase
+async function requireManager() {
+  const supabase = await createServerClientWithCookies()
+  const { data: { user }, error } = await supabase.auth.getUser()
+  if (error || !user) {
+    return { forbidden: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) }
+  }
+  const admin = createAdminClient()
+  const { data: profile } = await admin.from("profiles").select("role").eq("id", user.id).single()
+  if (profile?.role !== "manager") {
+    return { forbidden: NextResponse.json({ error: "Forbidden" }, { status: 403 }) }
+  }
+  return { forbidden: null }
+}
 
+// GET /api/users - List all users (manager only)
 export async function GET() {
+  const { forbidden } = await requireManager()
+  if (forbidden) return forbidden
   try {
     // Check if environment variables are set
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
@@ -77,8 +90,10 @@ export async function GET() {
   }
 }
 
-// POST /api/users - Create a new user (admin operation)
+// POST /api/users - Create a new user (manager only)
 export async function POST(request: Request) {
+  const { forbidden } = await requireManager()
+  if (forbidden) return forbidden
   try {
     const supabase = createAdminClient()
 

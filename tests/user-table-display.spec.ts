@@ -16,9 +16,9 @@ test.describe('Users table display', () => {
     await page.fill('#email', managerEmail);
     await page.fill('#password', managerPassword);
     await page.click('button.login-button');
-    await expect(page.locator('nav.sidebar-nav >> text=ניהול משתמשים')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('nav.sidebar-nav >> text=ניהול משתמשים')).toBeVisible();
     await page.click('nav.sidebar-nav >> text=ניהול משתמשים');
-    await expect(page.locator('.users-table')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('.users-table')).toBeVisible();
   });
 
   test('table shows all expected column headers', async ({ page }) => {
@@ -33,19 +33,19 @@ test.describe('Users table display', () => {
 
   test('table header shows user count', async ({ page }) => {
     // The card header shows "משתמשים (N)"
-    await expect(page.locator('text=/משתמשים \\(\\d+\\)/')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=/משתמשים \\(\\d+\\)/')).toBeVisible();
   });
 
   test('manager user appears in the table with correct data', async ({ page }) => {
     const managerRow = page.locator(`.users-table tr:has-text("${managerEmail}")`);
-    await expect(managerRow).toBeVisible({ timeout: 10000 });
+    await expect(managerRow).toBeVisible();
     // Manager should have active status
     await expect(managerRow).toContainText('פעיל');
   });
 
   test('clicking a user row opens the edit dialog', async ({ page }) => {
     await page.click(`.users-table tr:has-text("${managerEmail}")`);
-    await expect(page.locator('text=ערוך משתמש')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=ערוך משתמש')).toBeVisible();
     // Email should be disabled in edit mode
     await expect(page.locator('#email')).toBeDisabled();
   });

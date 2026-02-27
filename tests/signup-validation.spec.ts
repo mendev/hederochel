@@ -5,7 +5,7 @@ test.describe('Signup form validation', () => {
     await page.goto('/');
     await page.click('nav.sidebar-nav >> text=התחבר');
     await page.click('button.signup-button');
-    await expect(page.locator('text=הרשמה למערכת')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=הרשמה למערכת')).toBeVisible();
   });
 
   test('shows error when passwords do not match', async ({ page }) => {
@@ -15,7 +15,7 @@ test.describe('Signup form validation', () => {
     await page.fill('#signup-confirm-password', 'DifferentPassword!');
     await page.locator('[role="dialog"] button[type="submit"]').click();
 
-    await expect(page.locator('text=הסיסמאות אינן תואמות')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=הסיסמאות אינן תואמות')).toBeVisible();
   });
 
   test('prevents submission when password is too short via native validation', async ({ page }) => {
@@ -37,6 +37,22 @@ test.describe('Signup form validation', () => {
     expect(isInvalid).toBe(true);
   });
 
+  // US-001 AF-4: missing required fields
+  test('shows validation when required fields are empty', async ({ page }) => {
+    // Submit without filling anything
+    await page.locator('[role="dialog"] button[type="submit"]').click();
+
+    // Dialog must stay open — no success and no server call
+    await expect(page.locator('text=הרשמה למערכת')).toBeVisible();
+    await expect(page.locator('text=המשתמש נוצר בהצלחה!')).not.toBeVisible();
+
+    // Browser native required validation marks the email field as invalid
+    const emailInvalid = await page.locator('#signup-email').evaluate(
+      (el: HTMLInputElement) => !el.checkValidity()
+    );
+    expect(emailInvalid).toBe(true);
+  });
+
   test('shows error for duplicate email', async ({ page }) => {
     const existingEmail = process.env.TEST_USER_EMAIL;
     if (!existingEmail) throw new Error('Missing TEST_USER_EMAIL');
@@ -50,7 +66,7 @@ test.describe('Signup form validation', () => {
     // The API may return the error in Hebrew or English depending on Supabase response.
     // Match either the Hebrew translation or the English Supabase message.
     const errorBox = page.locator('[role="dialog"] .text-destructive');
-    await expect(errorBox).toBeVisible({ timeout: 10000 });
+    await expect(errorBox).toBeVisible();
     const errorText = await errorBox.textContent();
     expect(
       errorText?.includes('שם משתמש זה כבר תפוס') ||

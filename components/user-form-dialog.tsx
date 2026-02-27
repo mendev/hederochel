@@ -61,6 +61,7 @@ export function UserFormDialog({
   })
 
   const isSuspended = user?.banned_until && new Date(user.banned_until) > new Date()
+  const isManager = user?.role === 'manager'
 
   // Populate form when editing
   React.useEffect(() => {
@@ -304,7 +305,7 @@ export function UserFormDialog({
           </div>
 
           <DialogFooter className="mt-6 gap-2 flex-col sm:flex-row">
-            {user && (
+            {user && !isManager && (
               <>
                 <Button
                   type="button"
