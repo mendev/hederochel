@@ -17,3 +17,4 @@
 | REQ-SHF-013 | Shift transitions from running to closed when the report is completed or shift end time passes | High | todo | US-SHF-010 |
 | REQ-SHF-014 | Bartenders cannot sign up for a shift that is full, running, or closed | Medium | todo | US-SHF-006 |
 | REQ-SHF-015 | Suspended users cannot sign up for any shift | Medium | todo | US-USR-005, US-SHF-006 |
+| REQ-SHF-016 | Test all shifts flows automatically | High | todo | US-USR-001 |
