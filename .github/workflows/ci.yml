@@ -9,7 +9,7 @@ jobs:
   ci:
     name: CI
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
 
     steps:
       # ─── Checkout & Node ───────────────────────────────────────────────────
@@ -40,6 +40,12 @@ jobs:
 
       - name: Start Supabase
         run: npx supabase start
+
+      # Wipes and recreates the database from migrations on every run.
+      # Prevents stale data (e.g. leftover test users) from persisting across
+      # CI runs when Docker layers are cached by the GitHub Actions runner.
+      - name: Reset database
+        run: npx supabase db reset --local
 
       # Writes local Supabase connection values to $GITHUB_ENV for all
       # subsequent steps (build + tests). The URL is fixed for every local
