@@ -8,6 +8,7 @@ export type ShiftType =
   | "ארוע מיוחד"
 
 export type ShiftState = "פתוחה" | "מלאה" | "סגורה"
+export type EffectiveShiftState = ShiftState | "running"
 
 export interface DBShift {
   id: number
@@ -19,8 +20,22 @@ export interface DBShift {
   bartenders_required: number | 3
   bartenders: string[] // Array of user IDs
   state: ShiftState
+  start_at: string | null
   report_id: string | null
   created_at: string
+}
+
+// Returns 'running' when the shift has started (start_at <= now) and is still
+// open or full in the database. Otherwise returns the stored state unchanged.
+export function computeEffectiveState(shift: DBShift): EffectiveShiftState {
+  if (
+    shift.start_at !== null &&
+    new Date(shift.start_at) <= new Date() &&
+    (shift.state === "פתוחה" || shift.state === "מלאה")
+  ) {
+    return "running"
+  }
+  return shift.state
 }
 
 // GET /api/shifts - Fetch all shifts or filter by date range
@@ -70,15 +85,21 @@ export async function GET(request: Request) {
       {} as Record<string, { full_name: string; role: string }>,
     )
 
-    // Enrich shifts with bartender names and map field names
-    const enrichedShifts = shifts?.map((shift) => ({
-      ...shift,
-      shift_state: shift.state,  // Map database 'state' to component 'shift_state'
-      bartender_details: (shift.bartenders || []).map((id: string) => ({
-        id,
-        ...bartenderProfiles[id],
-      })),
-    }))
+    // Enrich shifts with bartender names and apply derived running state.
+    // Both `state` and `shift_state` are set to the effective value so that
+    // callers checking either field get the correct result.
+    const enrichedShifts = shifts?.map((shift) => {
+      const effectiveState = computeEffectiveState(shift)
+      return {
+        ...shift,
+        state: effectiveState,
+        shift_state: effectiveState,
+        bartender_details: (shift.bartenders || []).map((id: string) => ({
+          id,
+          ...bartenderProfiles[id],
+        })),
+      }
+    })
 
     return NextResponse.json({ shifts: enrichedShifts })
   } catch (error) {

@@ -13,7 +13,7 @@
 | REQ-SHF-009 | Bartenders can view their past completed shifts | Medium | todo | US-SHF-009 |
 | REQ-SHF-010 | Shift transitions from open to full when all capacity slots are taken | High | todo | US-SHF-010 |
 | REQ-SHF-011 | Shift transitions from full back to open if a bartender cancels | High | todo | US-SHF-010 |
-| REQ-SHF-012 | Shift transitions from open/full to running when the shift start time is reached | High | todo | US-SHF-010 |
+| REQ-SHF-012 | Shifts in open/full state are presented as running once start_at (timestamptz) is reached — running state is derived at read time, never written to the DB state column | High | done | US-SHF-010 |
 | REQ-SHF-013 | Shift transitions from running to closed when the report is completed or shift end time passes | High | todo | US-SHF-010 |
 | REQ-SHF-014 | Bartenders cannot sign up for a shift that is full, running, or closed | Medium | todo | US-SHF-006 |
 | REQ-SHF-015 | Suspended users cannot sign up for any shift | Medium | todo | US-USR-005, US-SHF-006 |

@@ -105,13 +105,16 @@
 
 ## Technical Notes
 
-- Open -> Full: triggered synchronously when bartender assignment changes
-- Open/Full -> Running: requires a scheduled job (cron) or real-time check
-- Running -> Closed: triggered when report is submitted via API
-- Consider using Supabase Edge Functions or a cron job for time-based transitions
-- State machine pattern recommended to prevent invalid transitions
-- All transitions should be atomic database operations
-- Invalid transitions (e.g., closed -> open) must be rejected
+- Open -> Full: triggered synchronously when bartender assignment changes (DB state column written)
+- Open/Full -> Running: **derived at read time — DB state column is never written with 'running'**
+  - A `start_at timestamptz` column was added via migration and is auto-maintained by a DB trigger
+  - `computeEffectiveState(shift)` utility returns `'running'` when `start_at <= now()` and stored state is `'open'` or `'full'`
+  - Applied in the GET shifts handler before the response is returned
+  - No cron job, no Edge Function — option A (derived status at read time) was selected after architectural review
+- Running -> Closed: triggered when report is submitted via API (DB state column written)
+- State machine pattern enforced in application layer for all writes; invalid transitions rejected
+- All state-writing transitions are atomic database operations
+- The `'running'` value remains in the DB ENUM for compatibility but is never written by application code
 
 ---
 
