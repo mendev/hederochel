@@ -68,6 +68,17 @@ jobs:
           echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"         >> "$GITHUB_ENV"
           echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_KEY"          >> "$GITHUB_ENV"
 
+      # Creates the bartender and manager test accounts that Playwright
+      # tests expect to find in auth.users / profiles. Runs after db reset
+      # so it always seeds a clean database.
+      - name: Seed test users
+        run: node tests/helpers/seed.mjs
+        env:
+          TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          TEST_MANAGER_EMAIL: ${{ secrets.TEST_MANAGER_EMAIL }}
+          TEST_MANAGER_PASSWORD: ${{ secrets.TEST_MANAGER_PASSWORD }}
+
       # Build runs after keys are in $GITHUB_ENV — no placeholders needed.
       - name: Build
         run: npm run build
