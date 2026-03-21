@@ -2,11 +2,11 @@ ID,Title,Description,Related Story,Related Requirement,Status,Priority
 TSK-USR-001,Implement login with email and password,Set up Supabase Auth login flow with email/password credentials,US-USR-002,REQ-USR-002,done,High
 TSK-USR-002,Define user roles (bartender and manager),Implement role system supporting bartender and manager roles in the profiles table,US-USR-003,REQ-USR-003,done,High
 TSK-USR-003,Default new accounts to bartender role,Ensure newly created accounts are assigned the bartender role automatically,US-USR-001,REQ-USR-004,done,Medium
-TSK-USR-004,Build user signup flow,Create signup API and form allowing new users to register with name; email; and password,US-USR-001,REQ-USR-001,todo,High
+TSK-USR-004,Build user signup flow,Create signup API and form allowing new users to register with name; email; and password,US-USR-001,REQ-USR-001,done,High
 TSK-USR-005,Manager view of all users,Allow managers to see a list of all registered users with their roles and status,US-USR-004,REQ-USR-005,done,High
-TSK-USR-006,Suspend user account,Allow managers to suspend a user; preventing login and shift signup,US-USR-005,REQ-USR-006,todo,High
-TSK-USR-007,Unsuspend user account,Allow managers to reactivate a previously suspended user,US-USR-005,REQ-USR-007,todo,High
-TSK-USR-008,Delete user account,Allow managers to permanently delete a user account and associated data,US-USR-006,REQ-USR-008,todo,Medium
+TSK-USR-006,Suspend user account,Allow managers to suspend a user; preventing login and shift signup,US-USR-005,REQ-USR-006,done,High
+TSK-USR-007,Unsuspend user account,Allow managers to reactivate a previously suspended user,US-USR-005,REQ-USR-007,done,High
+TSK-USR-008,Delete user account,Allow managers to permanently delete a user account and associated data,US-USR-006,REQ-USR-008,done,Medium
 TSK-USR-009,Manager can change user password,Allow managers to reset/change a user's password on their behalf,US-USR-007,REQ-USR-009,done,Medium
 TSK-USR-010,Manager can change user role,Allow managers to switch a user's role between bartender and manager,US-USR-008,REQ-USR-010,done,Medium
 TSK-USR-011,Enforce role-based access control,Prevent bartenders from accessing manager-only pages and API routes,US-USR-009,REQ-USR-011,done,High

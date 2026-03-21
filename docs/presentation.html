@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hederochel — Project Presentation</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --border: #2a2d3a;
+      --accent: #5b8dee;
+      --accent-dim: #3a5faa;
+      --green: #3ecf8e;
+      --yellow: #f0c060;
+      --red: #f06060;
+      --gray: #555870;
+      --text: #e2e4ed;
+      --text-dim: #8890aa;
+      --radius: 10px;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ── Slide container ── */
+    .deck {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 56px 72px 48px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* ── Typography ── */
+    .slide-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 48px;
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    h1 span { color: var(--accent); }
+
+    h2 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-bottom: 28px;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: var(--text-dim);
+      margin-top: 12px;
+      max-width: 600px;
+      line-height: 1.5;
+    }
+
+    /* ── Layout helpers ── */
+    .cols {
+      display: grid;
+      gap: 20px;
+    }
+    .cols-2 { grid-template-columns: 1fr 1fr; }
+    .cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+    }
+
+    .card-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+    }
+
+    /* ── Status dots & pills ── */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+    .pill.done    { background: rgba(62,207,142,.12); color: var(--green); }
+    .pill.progress { background: rgba(91,141,238,.12); color: var(--accent); }
+    .pill.todo    { background: rgba(136,144,170,.10); color: var(--text-dim); }
+    .pill.blocked { background: rgba(240,96,96,.10); color: var(--red); }
+
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-green  { background: var(--green); }
+    .dot-blue   { background: var(--accent); }
+    .dot-gray   { background: var(--gray); }
+    .dot-yellow { background: var(--yellow); }
+    .dot-red    { background: var(--red); }
+
+    /* ── Progress bar ── */
+    .progress-bar {
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+    .fill-green  { background: var(--green); }
+    .fill-blue   { background: var(--accent); }
+    .fill-gray   { background: var(--gray); }
+    .fill-yellow { background: var(--yellow); }
+
+    /* ── Domain status card (slide 3) ── */
+    .domain-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    .domain-name {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .domain-meta {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 16px;
+    }
+
+    .domain-tasks {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .domain-tasks-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
+    /* ── Scope list ── */
+    .scope-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .scope-list li {
+      font-size: 14px;
+      color: var(--text-dim);
+      padding-left: 18px;
+      position: relative;
+      line-height: 1.4;
+    }
+
+    .scope-list li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-size: 12px;
+    }
+
+    /* ── Sprint tasks ── */
+    .task-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .task-row:last-child { border-bottom: none; }
+
+    .task-id {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-dim);
+      white-space: nowrap;
+      padding-top: 2px;
+      min-width: 90px;
+    }
+
+    .task-body { flex: 1; }
+
+    .task-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .task-desc {
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
+
+    /* ── Gap items ── */
+    .gap-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--yellow);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+    }
+
+    .gap-item.risk {
+      border-left-color: var(--red);
+    }
+
+    .gap-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 4px;
+    }
+
+    .gap-item.risk .gap-label { color: var(--red); }
+
+    .gap-desc {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.45;
+    }
+
+    /* ── Roadmap ── */
+    .roadmap-row {
+      display: flex;
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .roadmap-version {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      flex: 1;
+    }
+
+    .roadmap-version.active {
+      border-color: var(--accent-dim);
+    }
+
+    .version-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .version-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .version-items {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .version-items li {
+      font-size: 13px;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .check { color: var(--green); font-size: 12px; }
+    .circle { color: var(--accent); font-size: 11px; }
+    .dash { color: var(--gray); font-size: 14px; }
+
+    /* ── Stack badges (slide 1) ── */
+    .stack-badges {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 32px;
+    }
+
+    .badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+
+    .user-chips {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .user-chip .icon { font-size: 20px; }
+
+    /* ── Navigation ── */
+    .nav {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 8px 20px;
+      z-index: 100;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+      line-height: 1;
+    }
+
+    .nav-btn:hover { color: var(--text); background: var(--border); }
+    .nav-btn:disabled { opacity: 0.25; cursor: default; }
+    .nav-btn:disabled:hover { color: var(--text-dim); background: none; }
+
+    .nav-counter {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-weight: 600;
+      min-width: 40px;
+      text-align: center;
+    }
+
+    .nav-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .nav-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--border);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .nav-dot.active { background: var(--accent); }
+
+    /* ── Slide 1 hero ── */
+    .hero-content {
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+
+    /* ── Util ── */
+    .mt-auto { margin-top: auto; }
+    .gap-12 { gap: 12px; }
+    .gap-16 { gap: 16px; }
+    .content { flex: 1; display: flex; flex-direction: column; gap: 16px; min-height: 0; }
+  </style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- ─────────────── SLIDE 1: Overview ─────────────── -->
+  <div class="slide active" id="slide-1">
+    <div class="hero-content">
+      <div class="slide-label">Community Pub Management</div>
+      <h1>Hederochel<br><span>Shift &amp; Report Platform</span></h1>
+      <p class="subtitle">
+        A web application for volunteer bartenders and pub administrators —
+        managing shifts, reports, and staff from a single interface.
+        Built in Hebrew, deployed on Vercel, powered by Supabase.
+      </p>
+
+      <div class="user-chips" style="margin-top:32px">
+        <div class="user-chip"><span class="icon">🍺</span> Bartenders — sign up for shifts, complete reports</div>
+        <div class="user-chip"><span class="icon">🗂️</span> Managers — schedule shifts, manage users, review reports</div>
+      </div>
+
+      <div class="stack-badges">
+        <span class="badge">Next.js App Router</span>
+        <span class="badge">Supabase Auth + DB</span>
+        <span class="badge">Vercel</span>
+        <span class="badge">Playwright</span>
+        <span class="badge">TypeScript</span>
+        <span class="badge">Hebrew / RTL</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────── SLIDE 2: v.1 Scope ─────────────── -->
+  <div class="slide" id="slide-2">
+    <div class="slide-label">Version 1 Scope</div>
+    <h2>What We're Building</h2>
+
+    <div class="cols cols-3" style="flex:1; align-content:start;">
+
+      <div class="card">
+        <div class="card-title">👤 User Management</div>
+        <ul class="scope-list">
+          <li>Email/password signup &amp; login</li>
+          <li>Two roles: Bartender &amp; Manager</li>
+          <li>Suspend / unsuspend accounts</li>
+          <li>Delete user accounts</li>
+          <li>Managers change roles &amp; passwords</li>
+          <li>Role-based access control (API + UI)</li>
+          <li>Profile view &amp; edit</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📅 Shift Management</div>
+        <ul class="scope-list">
+          <li>Managers create / edit / delete shifts</li>
+          <li>Calendar view of all shifts</li>
+          <li>Lifecycle: open → full → running → closed</li>
+          <li>Bartenders sign up &amp; cancel</li>
+          <li>View upcoming &amp; past shifts</li>
+          <li>State-based signup guards</li>
+          <li>Link shifts to reports</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📋 Shift Reports</div>
+        <ul class="scope-list">
+          <li>Auto-create report on shift start</li>
+          <li>Task checklist from active template</li>
+          <li>Bartenders mark tasks &amp; add notes</li>
+          <li>Report auto-closes when all tasks done</li>
+          <li>Managers view completed reports</li>
+          <li>CRUD task templates</li>
+          <li>Reports read-only after shift closes</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─────────────── SLIDE 3: Current State ─────────────── -->
+  <div class="slide" id="slide-3">
+    <div class="slide-label">Current State</div>
+    <h2>Progress by Domain</h2>
+
+    <div class="cols cols-4" style="margin-bottom:24px;">
+
+      <div class="domain-card">
+        <div class="domain-name" style="color:var(--green)">Users</div>
+        <div class="domain-meta">All core flows complete</div>
+        <div class="domain-tasks" style="color:var(--green)">12 / 12</div>
+        <div class="domain-tasks-label">tasks done</div>
+        <div class="progress-bar"><div class="progress-fill fill-green" style="width:100%"></div></div>
+        <div style="margin-top:12px"><span class="pill done"><span class="dot dot-green"></span>Complete</span></div>
+        <ul class="scope-list" style="margin-top:12px;">
+          <li>Signup, login, logout</li>
+          <li>Suspend / unsuspend / delete</li>
+          <li>Role management + RBAC</li>
+          <li>Profile page</li>
+        </ul>
+      </div>
+
+      <div class="domain-card">
+        <div class="domain-name" style="color:var(--accent)">Shifts</div>
+        <div class="domain-meta">Lifecycle &amp; guards in progress</div>
+        <div class="domain-tasks" style="color:var(--accent)">10 / 16</div>
+        <div class="domain-tasks-label">tasks done</div>
+        <div class="progress-bar"><div class="progress-fill fill-blue" style="width:62.5%"></div></div>
+        <div style="margin-top:12px"><span class="pill progress"><span class="dot dot-blue"></span>In Progress</span></div>
+        <ul class="scope-list" style="margin-top:12px;">
+          <li>CRUD + calendar ✓</li>
+          <li>Sign up / cancel ✓</li>
+          <li>Open ↔ Full transitions ✓</li>
+          <li>Time-based transitions — todo</li>
+          <li>Signup guards — partial</li>
+        </ul>
+      </div>
+
+      <div class="domain-card">
+        <div class="domain-name" style="color:var(--gray)">Reports</div>
+        <div class="domain-meta">Not yet started</div>
+        <div class="domain-tasks" style="color:var(--gray)">0 / 12</div>
+        <div class="domain-tasks-label">tasks done</div>
+        <div class="progress-bar"><div class="progress-fill fill-gray" style="width:0%"></div></div>
+        <div style="margin-top:12px"><span class="pill todo"><span class="dot dot-gray"></span>Not started</span></div>
+        <ul class="scope-list" style="margin-top:12px;">
+          <li>Task templates — todo</li>
+          <li>Report filling UI — todo</li>
+          <li>Task checklist — todo</li>
+          <li>Completed report view — todo</li>
+        </ul>
+      </div>
+
+      <div class="domain-card">
+        <div class="domain-name" style="color:var(--yellow)">UI / Navigation</div>
+        <div class="domain-meta">Core screens done; detail pages todo</div>
+        <div class="domain-tasks" style="color:var(--yellow)">10 / 14</div>
+        <div class="domain-tasks-label">tasks done</div>
+        <div class="progress-bar"><div class="progress-fill fill-yellow" style="width:71.4%"></div></div>
+        <div style="margin-top:12px"><span class="pill progress"><span class="dot dot-yellow"></span>In Progress</span></div>
+        <ul class="scope-list" style="margin-top:12px;">
+          <li>Login, signup, dashboards ✓</li>
+          <li>Hebrew RTL, responsive ✓</li>
+          <li>Shift detail page — todo</li>
+          <li>Report UI — todo</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─────────────── SLIDE 4: Active Sprint ─────────────── -->
+  <div class="slide" id="slide-4">
+    <div class="slide-label">Active Sprint</div>
+    <h2>Next Up — Shifts Completion</h2>
+
+    <div class="cols cols-2" style="flex:1; align-content:start; gap:20px;">
+
+      <div class="card">
+        <div class="card-title">In Progress / Next</div>
+
+        <div class="task-row">
+          <div class="task-id"><span class="pill progress" style="font-size:10px">TSK-SHF-012/013</span></div>
+          <div class="task-body">
+            <div class="task-title">Time-based state transitions</div>
+            <div class="task-desc">Lazy evaluation at read time: open/full → running when start time passes; running → closed when end time passes. Enforced at API + frontend.</div>
+          </div>
+        </div>
+
+        <div class="task-row">
+          <div class="task-id"><span class="pill progress" style="font-size:10px">TSK-SHF-014</span></div>
+          <div class="task-body">
+            <div class="task-title">Complete signup eligibility guard</div>
+            <div class="task-desc">API currently only blocks closed shifts. Extend to block full and running. Bug fix — no new features required.</div>
+          </div>
+        </div>
+
+        <div class="task-row">
+          <div class="task-id"><span class="pill progress" style="font-size:10px">TSK-SHF-015</span></div>
+          <div class="task-body">
+            <div class="task-title">Suspended user signup guard</div>
+            <div class="task-desc">Check ban_duration in shift signup API handler. Hide signup option in UI for suspended users. Dual enforcement.</div>
+          </div>
+        </div>
+
+        <div class="task-row">
+          <div class="task-id"><span class="pill blocked" style="font-size:10px">TSK-SHF-016</span></div>
+          <div class="task-body">
+            <div class="task-title">Playwright shift test suite</div>
+            <div class="task-desc">Full coverage: CRUD, sign-up/cancel, state transitions, guards. Blocked by TSK-SHF-012–015.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">After Shifts Are Complete</div>
+
+        <div class="task-row">
+          <div class="task-id"><span class="pill todo" style="font-size:10px">TSK-SHF-009</span></div>
+          <div class="task-body">
+            <div class="task-title">View past completed shifts</div>
+            <div class="task-desc">Allow bartenders to view their history of closed shifts.</div>
+          </div>
+        </div>
+
+        <div class="task-row">
+          <div class="task-id"><span class="pill todo" style="font-size:10px">TSK-UI-008</span></div>
+          <div class="task-body">
+            <div class="task-title">Shift detail page</div>
+            <div class="task-desc">Full shift info page: assigned bartenders, status, report link.</div>
+          </div>
+        </div>
+
+        <div class="task-row">
+          <div class="task-id"><span class="pill todo" style="font-size:10px">TSK-RPT-007/008</span></div>
+          <div class="task-body">
+            <div class="task-title">Task template management</div>
+            <div class="task-desc">CRUD task templates and set active template. Gateway to entire reports domain.</div>
+          </div>
+        </div>
+
+        <div class="task-row">
+          <div class="task-id"><span class="pill todo" style="font-size:10px">TSK-RPT-001–006</span></div>
+          <div class="task-body">
+            <div class="task-title">Reports domain (full)</div>
+            <div class="task-desc">Auto-create, fill checklist, mark tasks, add notes, auto-complete, view history.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─────────────── SLIDE 5: Gaps & Risks ─────────────── -->
+  <div class="slide" id="slide-5">
+    <div class="slide-label">Open Gaps &amp; Risks</div>
+    <h2>Items Requiring Attention</h2>
+
+    <div style="display:flex; flex-direction:column; gap:12px; flex:1; justify-content:flex-start;">
+
+      <div class="gap-item risk">
+        <div class="gap-label">⚠ Decision Required — Architecture</div>
+        <div class="gap-desc"><strong>TSK-SHF-012/013:</strong> Time-based state transitions require a trigger mechanism. Recommended approach: lazy evaluation at API read time (no background job). Alternative: Supabase scheduled function (pg_cron). Decision needed before implementation begins — affects how reports auto-create on shift start.</div>
+      </div>
+
+      <div class="gap-item">
+        <div class="gap-label">⚠ Gap — Shift Signup API</div>
+        <div class="gap-desc"><strong>TSK-SHF-014 (partial):</strong> The shift signup API only blocks signup for <em>closed</em> shifts. It does not block <em>full</em> or <em>running</em> shifts at the API level. The UI prevents it, but the API is bypassable. Fix is small — one condition in the signup handler.</div>
+      </div>
+
+      <div class="gap-item">
+        <div class="gap-label">⚠ Gap — Suspended User Enforcement</div>
+        <div class="gap-desc"><strong>TSK-SHF-015:</strong> Suspended users are blocked from login (Supabase ban_duration) but the shift signup API does not check suspension status. A suspended user with a valid session could sign up for a shift via direct API call.</div>
+      </div>
+
+      <div class="gap-item">
+        <div class="gap-label">⚠ Gap — Default Landing Page Redirect</div>
+        <div class="gap-desc"><strong>TSK-UI-007:</strong> The task remains marked <em>todo</em> in the backlog but may already be partially implemented. Needs verification before the next planning round. If not implemented, role-based redirect after login is missing.</div>
+      </div>
+
+      <div class="gap-item">
+        <div class="gap-label">⚠ Gap — Requirements File Staleness</div>
+        <div class="gap-desc">The four REQ-*.md files still reflect stale statuses for implemented features (e.g., REQ-USR-001, REQ-USR-006–008 marked <em>todo</em> but implemented). Task CSVs have been updated; requirement files have not been reconciled.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─────────────── SLIDE 6: Roadmap ─────────────── -->
+  <div class="slide" id="slide-6">
+    <div class="slide-label">Roadmap</div>
+    <h2>What's Ahead</h2>
+
+    <div class="roadmap-row" style="flex:1; align-content:start;">
+
+      <div class="roadmap-version active">
+        <div class="version-tag">v.1 — Current</div>
+        <div class="version-title">Core Operations</div>
+        <ul class="version-items">
+          <li><span class="check">✓</span> User management (complete)</li>
+          <li><span class="check">✓</span> Shift CRUD + calendar</li>
+          <li><span class="check">✓</span> Sign up / cancel flows</li>
+          <li><span class="check">✓</span> Open ↔ Full transitions</li>
+          <li><span class="circle">◎</span> Time-based transitions (running/closed)</li>
+          <li><span class="circle">◎</span> Complete signup guards (API + UI)</li>
+          <li><span class="circle">◎</span> Suspended user enforcement</li>
+          <li><span class="circle">◎</span> Playwright shift tests</li>
+          <li><span class="dash">–</span> View past shifts</li>
+          <li><span class="dash">–</span> Shift detail page</li>
+          <li><span class="dash">–</span> Reports domain (full)</li>
+          <li><span class="dash">–</span> Task template management</li>
+          <li><span class="dash">–</span> Report filling UI</li>
+          <li><span class="dash">–</span> Completed report view</li>
+        </ul>
+      </div>
+
+      <div class="roadmap-version">
+        <div class="version-tag">v.2 — Planned</div>
+        <div class="version-title">Extended Features</div>
+        <ul class="version-items">
+          <li><span class="dash">–</span> Stock management</li>
+          <li><span class="dash">–</span> Recipe gallery with photos</li>
+          <li><span class="dash">–</span> Additional features TBD based on v.1 success</li>
+        </ul>
+      </div>
+
+      <div class="roadmap-version">
+        <div class="version-tag">v.3 — Future</div>
+        <div class="version-title">TBD</div>
+        <ul class="version-items">
+          <li><span class="dash">–</span> To be defined after v.2 launch</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div style="margin-top:20px; padding:14px 20px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); display:flex; align-items:center; gap:16px;">
+      <span style="font-size:13px; color:var(--text-dim)">Legend:</span>
+      <span style="font-size:13px; color:var(--green)">✓ Done</span>
+      <span style="font-size:13px; color:var(--accent)">◎ In progress / next sprint</span>
+      <span style="font-size:13px; color:var(--gray)">– Backlog / future</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Navigation -->
+<nav class="nav">
+  <button class="nav-btn" id="btn-prev" onclick="go(-1)">&#8592;</button>
+  <div class="nav-dots" id="nav-dots"></div>
+  <span class="nav-counter" id="counter">1 / 6</span>
+  <button class="nav-btn" id="btn-next" onclick="go(1)">&#8594;</button>
+</nav>
+
+<script>
+  const TOTAL = 6;
+  let current = 1;
+
+  const dotsContainer = document.getElementById('nav-dots');
+  for (let i = 1; i <= TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'nav-dot' + (i === 1 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    d.dataset.slide = i;
+    dotsContainer.appendChild(d);
+  }
+
+  function goTo(n) {
+    if (n < 1 || n > TOTAL) return;
+    document.getElementById('slide-' + current).classList.remove('active');
+    document.querySelector('[data-slide="' + current + '"]').classList.remove('active');
+    current = n;
+    document.getElementById('slide-' + current).classList.add('active');
+    document.querySelector('[data-slide="' + current + '"]').classList.add('active');
+    document.getElementById('counter').textContent = current + ' / ' + TOTAL;
+    document.getElementById('btn-prev').disabled = current === 1;
+    document.getElementById('btn-next').disabled = current === TOTAL;
+  }
+
+  function go(dir) { goTo(current + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') go(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp') go(-1);
+    if (e.key === 'Home') goTo(1);
+    if (e.key === 'End')  goTo(TOTAL);
+  });
+
+  // init
+  goTo(1);
+</script>
+</body>
+</html>
