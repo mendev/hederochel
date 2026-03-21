@@ -25,8 +25,8 @@
 
 ## Main Flow
 
-1. User clicks on a shift from the calendar or shifts list
-2. System navigates to the shift detail page
+1. User clicks on a shift from the calendar, the shifts list, or the "My Shifts" page
+2. System opens the shift detail popup/modal (this is a SPA — no URL navigation)
 3. System displays shift information:
    - Date and time (start and end)
    - Current status (open, full, running, closed)
@@ -104,11 +104,11 @@
 
 ## Technical Notes
 
-- Route: `/shifts/[id]`
+- Implemented as a modal/popup (this app uses SPA state-based routing, not URL routes)
+- Entry points: calendar shift click, manager shifts list, bartender My Shifts list
 - API endpoint: GET `/api/shifts/[id]` with joined data (bartenders, report)
 - Role-based rendering for manager vs. bartender actions
-- Server-side authorization check for bartender access
-- Consider using Supabase real-time for live status updates
+- Client-side authorization check: bartenders may only open detail for their own assigned shifts
 
 ---
 

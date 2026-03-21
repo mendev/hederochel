@@ -9,7 +9,7 @@
 | REQ-UI-005 | Manager dashboard shows all shifts in a calendar view with management actions | High | done | US-UI-004 |
 | REQ-UI-006 | User profile page allows viewing and editing personal details | Medium | done | US-UI-005 |
 | REQ-UI-007 | Default landing page redirects users to the appropriate dashboard based on role | Medium | todo | US-UI-006 |
-| REQ-UI-008 | Shift detail page shows full shift info, assigned bartenders, and status | Medium | todo | US-UI-007 |
+| REQ-UI-008 | Shift detail popup shows full shift info, assigned bartenders, and status; accessible from calendar, manager shift list, and bartender My Shifts list | High | todo | US-020 |
 | REQ-UI-009 | Report filling page displays the task checklist for a running shift | High | todo | US-UI-008 |
 | REQ-UI-010 | Task template management page allows managers to CRUD task templates | High | todo | US-UI-009 |
 | REQ-UI-011 | Navigation adapts to user role, showing only permitted menu items | High | done | US-UI-010 |

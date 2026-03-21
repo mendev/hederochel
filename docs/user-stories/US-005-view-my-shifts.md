@@ -29,7 +29,7 @@
 3. System displays the shifts in a calendar and/or list view
 4. Each shift shows: date, time, location, and status
 5. Bartender can browse through upcoming dates
-6. Bartender can click a shift to view full details
+6. Bartender clicks a shift row — system opens the shift detail popup showing the same information as the calendar shift popup (see US-020)
 
 ---
 
@@ -99,5 +99,5 @@
 - [x] ~~Each shift displays date, time, location, and status~~
 - [x] ~~Shifts are sorted chronologically~~
 - [x] ~~Empty state message shown when no shifts are assigned~~
-- [x] ~~Bartender can click a shift to see full details~~
+- [ ] Bartender can click a shift to see full details in a popup (shift detail popup — see US-020)
 - [x] ~~UI is in Hebrew with RTL layout~~
