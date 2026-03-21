@@ -51,8 +51,8 @@ jobs:
       - name: Export Supabase env vars
         run: |
           STATUS=$(npx supabase status)
-          ANON_KEY=$(echo "$STATUS"    | grep 'Publishable' | awk -F'│' '{gsub(/ /,"",$3); print $3}')
-          SERVICE_KEY=$(echo "$STATUS" | grep '│ Secret'    | awk -F'│' '{gsub(/ /,"",$3); print $3}')
+          ANON_KEY=$(echo "$STATUS"    | awk -F'│' '$2 ~ /^[[:space:]]*Publishable[[:space:]]*$/ {gsub(/ /,"",$3); print $3}')
+          SERVICE_KEY=$(echo "$STATUS" | awk -F'│' '$2 ~ /^[[:space:]]*Secret[[:space:]]*$/     {gsub(/ /,"",$3); print $3}')
           if [ -z "$ANON_KEY" ] || [ -z "$SERVICE_KEY" ]; then
             echo "ERROR: failed to extract Supabase keys from status output"
             echo "$STATUS"
