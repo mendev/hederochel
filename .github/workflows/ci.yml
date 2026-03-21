@@ -47,14 +47,14 @@ jobs:
           version: latest
 
       - name: Start Supabase
-        run: supabase start
+        run: npx supabase start
 
       # Extract the deterministic local keys from `supabase status` and expose
       # them as environment variables for subsequent steps. These keys are the
       # same on every machine running `supabase start` and are not sensitive.
       - name: Export Supabase env vars
         run: |
-          STATUS=$(supabase status -o env)
+          STATUS=$(npx supabase status -o env)
           API_URL=$(echo "$STATUS"    | grep '^API_URL='          | cut -d= -f2-)
           ANON_KEY=$(echo "$STATUS"   | grep '^ANON_KEY='         | cut -d= -f2-)
           SERVICE_KEY=$(echo "$STATUS" | grep '^SERVICE_ROLE_KEY=' | cut -d= -f2-)
@@ -88,6 +88,6 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
-      - name: Stop Supabase
+      - name: npx Stop Supabase
         if: always()
-        run: supabase stop
+        run: npx supabase stop
