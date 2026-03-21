@@ -25,22 +25,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # ─── Quality gates ─────────────────────────────────────────────────────
+      # ─── Quality gates (no Supabase needed) ────────────────────────────────
       - name: Type check
         run: npx tsc --noEmit
 
       - name: Lint
         run: npm run lint
 
-      - name: Build
-        run: npm run build
-        env:
-          # Build requires these to be set; local values are fine here
-          # since we are just verifying the bundle compiles.
-          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-build-only
-
-      # ─── Supabase ──────────────────────────────────────────────────────────
+      # ─── Supabase (starts before build so real local keys are available) ───
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
@@ -49,18 +41,22 @@ jobs:
       - name: Start Supabase
         run: npx supabase start
 
-      # Extract the deterministic local keys from `supabase status` and expose
-      # them as environment variables for subsequent steps. These keys are the
-      # same on every machine running `supabase start` and are not sensitive.
+      # Extracts deterministic local keys and writes them to $GITHUB_ENV.
+      # All subsequent steps (build + tests) use this same local instance —
+      # no production values are used anywhere in this pipeline.
       - name: Export Supabase env vars
         run: |
           STATUS=$(npx supabase status -o env)
-          API_URL=$(echo "$STATUS"    | grep '^API_URL='          | cut -d= -f2-)
-          ANON_KEY=$(echo "$STATUS"   | grep '^ANON_KEY='         | cut -d= -f2-)
+          API_URL=$(echo "$STATUS"     | grep '^API_URL='          | cut -d= -f2-)
+          ANON_KEY=$(echo "$STATUS"    | grep '^ANON_KEY='         | cut -d= -f2-)
           SERVICE_KEY=$(echo "$STATUS" | grep '^SERVICE_ROLE_KEY=' | cut -d= -f2-)
           echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"       >> "$GITHUB_ENV"
           echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
           echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_KEY"  >> "$GITHUB_ENV"
+
+      # Build runs after keys are in $GITHUB_ENV — no placeholders needed.
+      - name: Build
+        run: npm run build
 
       # ─── Playwright ────────────────────────────────────────────────────────
       - name: Install Playwright browsers
@@ -88,6 +84,6 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
-      - name: npx Stop Supabase
+      - name: Stop Supabase
         if: always()
         run: npx supabase stop
