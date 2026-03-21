@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - development
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      # ─── Checkout & Node ───────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ─── Quality gates ─────────────────────────────────────────────────────
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+        env:
+          # Build requires these to be set; local values are fine here
+          # since we are just verifying the bundle compiles.
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-build-only
+
+      # ─── Supabase ──────────────────────────────────────────────────────────
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase
+        run: supabase start
+
+      # Extract the deterministic local keys from `supabase status` and expose
+      # them as environment variables for subsequent steps. These keys are the
+      # same on every machine running `supabase start` and are not sensitive.
+      - name: Export Supabase env vars
+        run: |
+          STATUS=$(supabase status -o env)
+          API_URL=$(echo "$STATUS"    | grep '^API_URL='          | cut -d= -f2-)
+          ANON_KEY=$(echo "$STATUS"   | grep '^ANON_KEY='         | cut -d= -f2-)
+          SERVICE_KEY=$(echo "$STATUS" | grep '^SERVICE_ROLE_KEY=' | cut -d= -f2-)
+          echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"       >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_KEY"  >> "$GITHUB_ENV"
+
+      # ─── Playwright ────────────────────────────────────────────────────────
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      # playwright.config.ts reads CI=true:
+      #   - workers set to 1  (stable with local Supabase auth)
+      #   - retries set to 2
+      #   - webServer starts `npm run dev` automatically and waits for :3000
+      - name: Run Playwright tests
+        run: npx playwright test
+        env:
+          CI: true
+          TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          TEST_MANAGER_EMAIL: ${{ secrets.TEST_MANAGER_EMAIL }}
+          TEST_MANAGER_PASSWORD: ${{ secrets.TEST_MANAGER_PASSWORD }}
+
+      # ─── Artifacts & teardown ──────────────────────────────────────────────
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+      - name: Stop Supabase
+        if: always()
+        run: supabase stop
