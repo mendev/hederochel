@@ -68,6 +68,18 @@
 2. System displays Hebrew validation errors
 3. Form remains open for correction
 
+### AF-5: Manager Removes a Registered Bartender
+
+**Scope note: v.1 supports removal only. Manual assignment of a bartender by a manager (without their sign-up) is deferred to v.2.**
+
+1. Manager opens the edit form for an open or full shift
+2. The edit form displays the list of currently registered bartenders beneath the shift details fields
+3. Manager clicks the "הסר" (Remove) button next to a bartender's name
+4. System removes the bartender from the shift's assignment list (`shift_assignments`)
+5. If the shift was "full" and capacity becomes available, the shift status reverts to "open"
+6. System displays a Hebrew confirmation (e.g., "הברמן הוסר מהמשמרת")
+7. The updated bartender list and shift status are reflected immediately in the form and all views
+
 ---
 
 ## Postconditions
@@ -94,6 +106,7 @@
 | end_time       | time    | Yes      | Must be after start_time                       |
 | location       | string  | Yes      | Non-empty string                               |
 | max_bartenders | integer | Yes      | Positive integer, >= current number of signups |
+| bartender_id   | UUID    | No       | Required when removing a bartender; must reference an existing assignment on this shift |
 
 ---
 
@@ -106,17 +119,22 @@
 - Edit button hidden/disabled for running or closed shifts
 - RTL layout throughout
 - Inline validation with Hebrew error messages
+- Below the shift details fields, a section titled "ברמנים רשומים" (Registered Bartenders) lists each registered bartender's name with a "הסר" (Remove) button
+- Remove action is immediate (no separate save step); reflects inline in the list
+- If no bartenders are registered, the section shows "אין ברמנים רשומים"
 
 ---
 
 ## Technical Notes
 
 - API route: `PUT /api/shifts/[id]`
+- API route for removing a bartender: `DELETE /api/shifts/[id]/bartenders/[userId]`
 - Server-side validation of all fields including max_bartenders vs current signups
 - Only managers can edit shifts (enforced via Supabase RLS and API middleware)
 - Shift status check performed server-side before allowing update
 - If max_bartenders is increased and shift was "full", status may revert to "open"
 - If max_bartenders is decreased to equal current signups, status becomes "full"
+- Removing a bartender deletes the corresponding row from `shift_assignments`; if shift was "full" it transitions back to "open"
 
 ---
 
@@ -131,3 +149,8 @@
 - [x] ~~Successful update shows a Hebrew success message~~
 - [x] ~~Updated details reflected in bartender and manager views~~
 - [x] ~~UI is in Hebrew with RTL layout~~
+- [ ] Edit form shows the list of currently registered bartenders
+- [ ] Manager can remove any registered bartender via a remove button
+- [ ] Removing a bartender updates the list immediately without closing the dialog
+- [ ] If removing a bartender causes capacity to free up on a "full" shift, shift status reverts to "open"
+- [ ] Bartender list section is hidden for running or closed shifts
