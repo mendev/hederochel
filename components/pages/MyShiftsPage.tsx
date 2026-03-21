@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { Shift } from "@/components/shifts-calendar"
+import { useAuth } from "@/contexts/auth-context"
 
 const stateBadgeVariant: Record<string, string> = {
   פתוחה: "bg-green-100 text-green-700",
@@ -22,43 +23,32 @@ const formatTime = (time: string | null | undefined) =>
   time ? time.slice(0, 5) : "לא צוין"
 
 function MyShifts() {
+  const { user, loading: authLoading } = useAuth()
   const [shifts, setShifts] = React.useState<Shift[]>([])
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
-  const [currentUserId, setCurrentUserId] = React.useState<string | null>(null)
   const [signingOff, setSigningOff] = React.useState<number | null>(null)
   const [selectedShift, setSelectedShift] = React.useState<Shift | null>(null)
   const [dialogOpen, setDialogOpen] = React.useState(false)
 
   React.useEffect(() => {
+    if (authLoading) return
+
     async function fetchData() {
       try {
         setLoading(true)
 
-        // Fetch current user
-        const userRes = await fetch("/api/auth/user")
-        if (!userRes.ok) throw new Error("Failed to fetch user")
-        const userData = await userRes.json()
-
-        if (!userData.user) {
+        if (!user) {
           setError("לא מחובר למערכת")
-          setLoading(false)
           return
         }
 
-        setCurrentUserId(userData.user.id)
-
-        // Fetch all shifts
-        const shiftsRes = await fetch("/api/shifts")
+        // Fetch only this user's shifts
+        const shiftsRes = await fetch(`/api/shifts?userId=${user.id}`)
         if (!shiftsRes.ok) throw new Error("Failed to fetch shifts")
         const shiftsData = await shiftsRes.json()
 
-        // Filter to only user's shifts
-        const userShifts = (shiftsData.shifts || []).filter((shift: Shift) =>
-          shift.bartenders.includes(userData.user.id)
-        )
-
-        setShifts(userShifts)
+        setShifts(shiftsData.shifts || [])
       } catch (err) {
         setError(err instanceof Error ? err.message : "שגיאה בטעינת המשמרות")
       } finally {
@@ -67,7 +57,7 @@ function MyShifts() {
     }
 
     fetchData()
-  }, [])
+  }, [authLoading, user])
 
   const handleShiftClick = (shift: Shift) => {
     setSelectedShift(shift)
@@ -115,15 +105,6 @@ function MyShifts() {
     })
   }
 
-  if (loading) {
-    return (
-      <div className="p-6" dir="rtl">
-        <h2 className="text-2xl font-bold mb-4 text-gray-900">המשמרות שלי</h2>
-        <p className="text-gray-600">טוען משמרות...</p>
-      </div>
-    )
-  }
-
   if (error) {
     return (
       <div className="p-6" dir="rtl">
@@ -159,7 +140,7 @@ function MyShifts() {
                   e.stopPropagation()
                   handleSignoff(shift.id)
                 }}
-                disabled={signingOff === shift.id || shift.state === "סגורה"}
+                disabled={loading || signingOff === shift.id || shift.state === "סגורה"}
                 variant="outline"
                 size="lg"
                 className="border-2 border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 font-bold"
@@ -221,7 +202,7 @@ function MyShifts() {
                 {/* Sign-off button */}
                 <Button
                   onClick={() => handleSignoff(selectedShift.id)}
-                  disabled={signingOff === selectedShift.id || selectedShift.state === "סגורה"}
+                  disabled={loading || signingOff === selectedShift.id || selectedShift.state === "סגורה"}
                   variant="destructive"
                   className="w-full"
                   size="lg"

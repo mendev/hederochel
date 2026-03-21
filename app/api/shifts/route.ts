@@ -29,8 +29,12 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const startDate = searchParams.get("start")
     const endDate = searchParams.get("end")
+    const userId = searchParams.get("userId")
 
-    const supabase = await createServerClientWithCookies()
+    // Use admin client for reads: shifts table has no RLS and GRANT ALL to all roles,
+    // so the session-based client is not needed. The admin client avoids JWT validation
+    // issues with the new sb_publishable_ key format in local Supabase dev.
+    const supabase = createAdminClient()
 
     let query = supabase.from("shifts").select("*").order("shift_start_time", { ascending: true })
 
@@ -41,36 +45,30 @@ export async function GET(request: Request) {
     if (endDate) {
       query = query.lte("shift_date", endDate)
     }
+    // Filter to shifts the user is registered for.
+    // bartenders is jsonb — UUID must be quoted inside the JSON array string
+    // to avoid a 22P02 "invalid input syntax for type json" error from PostgREST.
+    if (userId) {
+      query = query.filter("bartenders", "cs", `["${userId}"]`)
+    }
 
-    const { data: shifts, error } = await query
+    const [{ data: shifts, error }, { data: profiles }] = await Promise.all([
+      query,
+      supabase.from("profiles").select("id, full_name, role"),
+    ])
 
     if (error) {
       console.error("Error fetching shifts:", error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Fetch bartender profiles to include names
-    const allBartenderIds = [...new Set(shifts?.flatMap((s) => s.bartenders || []) || [])]
-
-    let bartenderProfiles: Record<string, { full_name: string; role: string }> = {}
-
-    if (allBartenderIds.length > 0) {
-      const adminClient = createAdminClient()
-      const { data: profiles } = await adminClient
-        .from("profiles")
-        .select("id, full_name, role")
-        .in("id", allBartenderIds)
-
-      if (profiles) {
-        bartenderProfiles = profiles.reduce(
-          (acc, p) => {
-            acc[p.id] = { full_name: p.full_name, role: p.role }
-            return acc
-          },
-          {} as Record<string, { full_name: string; role: string }>,
-        )
-      }
-    }
+    const bartenderProfiles: Record<string, { full_name: string; role: string }> = (profiles ?? []).reduce(
+      (acc, p) => {
+        acc[p.id] = { full_name: p.full_name, role: p.role }
+        return acc
+      },
+      {} as Record<string, { full_name: string; role: string }>,
+    )
 
     // Enrich shifts with bartender names and map field names
     const enrichedShifts = shifts?.map((shift) => ({
