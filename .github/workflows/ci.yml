@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - development
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      # ─── Checkout & Node ───────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ─── Quality gates (no Supabase needed) ────────────────────────────────
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      # ─── Supabase (starts before build so real local keys are available) ───
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase
+        run: npx supabase start
+
+      # Wipes and recreates the database from migrations on every run.
+      # Prevents stale data (e.g. leftover test users) from persisting across
+      # CI runs when Docker layers are cached by the GitHub Actions runner.
+      - name: Reset database
+        run: npx supabase db reset --local
+
+      # Writes local Supabase connection values to $GITHUB_ENV for all
+      # subsequent steps (build + tests). The URL is fixed for every local
+      # instance; keys are parsed from the human-readable status table, which
+      # is stable across CLI versions. No production values are used.
+      # New Supabase CLI renders a box-drawing table with keys labelled
+      # "Publishable" (anon) and "Secret" (service_role). Split on │ and
+      # strip whitespace to extract the values reliably.
+      - name: Export Supabase env vars
+        run: |
+          STATUS=$(npx supabase status)
+          ANON_KEY=$(echo "$STATUS"    | awk -F'│' '$2 ~ /^[[:space:]]*Publishable[[:space:]]*$/ {gsub(/ /,"",$3); print $3}')
+          SERVICE_KEY=$(echo "$STATUS" | awk -F'│' '$2 ~ /^[[:space:]]*Secret[[:space:]]*$/     {gsub(/ /,"",$3); print $3}')
+          if [ -z "$ANON_KEY" ] || [ -z "$SERVICE_KEY" ]; then
+            echo "ERROR: failed to extract Supabase keys from status output"
+            echo "$STATUS"
+            exit 1
+          fi
+          echo "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"         >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_KEY"          >> "$GITHUB_ENV"
+
+      # Creates the bartender and manager test accounts that Playwright
+      # tests expect to find in auth.users / profiles. Runs after db reset
+      # so it always seeds a clean database.
+      - name: Seed test users
+        run: node tests/helpers/seed.mjs
+        env:
+          TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          TEST_MANAGER_EMAIL: ${{ secrets.TEST_MANAGER_EMAIL }}
+          TEST_MANAGER_PASSWORD: ${{ secrets.TEST_MANAGER_PASSWORD }}
+
+      # Build runs after keys are in $GITHUB_ENV — no placeholders needed.
+      - name: Build
+        run: npm run build
+
+      # ─── Playwright ────────────────────────────────────────────────────────
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      # playwright.config.ts reads CI=true:
+      #   - workers set to 1  (stable with local Supabase auth)
+      #   - retries set to 2
+      #   - webServer starts `npm run dev` automatically and waits for :3000
+      - name: Run Playwright tests
+        run: npx playwright test
+        env:
+          CI: true
+          TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          TEST_MANAGER_EMAIL: ${{ secrets.TEST_MANAGER_EMAIL }}
+          TEST_MANAGER_PASSWORD: ${{ secrets.TEST_MANAGER_PASSWORD }}
+
+      # ─── Artifacts & teardown ──────────────────────────────────────────────
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+      - name: Stop Supabase
+        if: always()
+        run: npx supabase stop
