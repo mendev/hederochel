@@ -2,13 +2,16 @@ import { NextResponse } from "next/server"
 import { createAdminClient, createServerClientWithCookies } from "@/lib/supabase/server"
 
 async function requireManager() {
+  // Use getSession() to read the session from the cookie locally — no GoTrue network call.
+  // The role check against the admin client immediately below ensures the session user
+  // is a real manager; a tampered cookie with a fake ID would find no profile.
   const supabase = await createServerClientWithCookies()
-  const { data: { user }, error } = await supabase.auth.getUser()
-  if (error || !user) {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.user?.id) {
     return { forbidden: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) }
   }
   const admin = createAdminClient()
-  const { data: profile } = await admin.from("profiles").select("role").eq("id", user.id).single()
+  const { data: profile } = await admin.from("profiles").select("role").eq("id", session.user.id).single()
   if (profile?.role !== "manager") {
     return { forbidden: NextResponse.json({ error: "Forbidden" }, { status: 403 }) }
   }
