@@ -72,7 +72,8 @@ export async function GET() {
         created_at: user.created_at,
         last_sign_in_at: user.last_sign_in_at,
         email_confirmed_at: user.email_confirmed_at,
-        banned_until: user.banned_until || null,
+        // banned_until exists at runtime but is absent from the SDK's User type definition
+        banned_until: (user as unknown as { banned_until?: string | null }).banned_until ?? null,
         // Profile data from public.profiles table
         full_name: profile?.full_name || null,
         role: profile?.role || null,

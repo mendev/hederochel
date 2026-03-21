@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import { createClient } from "@/lib/supabase/client"
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js"
 
 type Role = "bartender" | "shift-manager" | "manager" | null
 
@@ -76,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })()
 
     // subscribe to changes
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_event: AuthChangeEvent, session: Session | null) => {
       if (session?.user) {
         setUser(session.user)
         await fetchProfile(session.user.id)
