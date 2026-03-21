@@ -45,11 +45,14 @@ jobs:
       # subsequent steps (build + tests). The URL is fixed for every local
       # instance; keys are parsed from the human-readable status table, which
       # is stable across CLI versions. No production values are used.
+      # New Supabase CLI renders a box-drawing table with keys labelled
+      # "Publishable" (anon) and "Secret" (service_role). Split on │ and
+      # strip whitespace to extract the values reliably.
       - name: Export Supabase env vars
         run: |
           STATUS=$(npx supabase status)
-          ANON_KEY=$(echo "$STATUS"    | grep -i 'anon key'         | awk '{print $NF}')
-          SERVICE_KEY=$(echo "$STATUS" | grep -i 'service_role key' | awk '{print $NF}')
+          ANON_KEY=$(echo "$STATUS"    | grep 'Publishable' | awk -F'│' '{gsub(/ /,"",$3); print $3}')
+          SERVICE_KEY=$(echo "$STATUS" | grep '│ Secret'    | awk -F'│' '{gsub(/ /,"",$3); print $3}')
           if [ -z "$ANON_KEY" ] || [ -z "$SERVICE_KEY" ]; then
             echo "ERROR: failed to extract Supabase keys from status output"
             echo "$STATUS"
