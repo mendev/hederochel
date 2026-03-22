@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createAdminClient, createServerClientWithCookies } from "@/lib/supabase/server"
+import { computeEffectiveState, type DBShift } from "@/app/api/shifts/route"
 
 // PATCH /api/shifts/[id] - Update a shift (e.g., signup)
 export async function PATCH(
@@ -22,8 +23,21 @@ export async function PATCH(
     const { action } = body
 
     if (action === "signup") {
+      // TSK-SHF-015: block suspended users server-side
+      const adminClient = createAdminClient()
+      const { data: { user: adminUser } } = await adminClient.auth.admin.getUserById(user.id)
+      // banned_until exists at runtime but is absent from the SDK's User type definition
+      const bannedUntil = (adminUser as unknown as { banned_until?: string | null })?.banned_until
+      const isSuspended = bannedUntil ? new Date(bannedUntil) > new Date() : false
+      if (isSuspended) {
+        return NextResponse.json(
+          { error: "המשתמש מושעה ואינו יכול להירשם למשמרות" },
+          { status: 403 },
+        )
+      }
+
       // Fetch the current shift
-      const { data: shift, error: fetchError } = await supabase
+      const { data: shift, error: fetchError } = await adminClient
         .from("shifts")
         .select("*")
         .eq("id", id)
@@ -33,9 +47,16 @@ export async function PATCH(
         return NextResponse.json({ error: "Shift not found" }, { status: 404 })
       }
 
-      // Check if shift is closed
-      if (shift.state === "סגורה") {
-        return NextResponse.json({ error: "משמרת סגורה להרשמה" }, { status: 400 })
+      // TSK-SHF-014: block signup based on effective state (handles running, full, closed)
+      const effectiveState = computeEffectiveState(shift as DBShift)
+      if (effectiveState === "running") {
+        return NextResponse.json({ error: "המשמרת כבר התחילה" }, { status: 400 })
+      }
+      if (effectiveState === "מלאה") {
+        return NextResponse.json({ error: "המשמרת מלאה" }, { status: 400 })
+      }
+      if (effectiveState === "סגורה") {
+        return NextResponse.json({ error: "המשמרת הסתיימה" }, { status: 400 })
       }
 
       // Check if user is already signed up
@@ -44,17 +65,12 @@ export async function PATCH(
         return NextResponse.json({ error: "כבר רשום למשמרת" }, { status: 400 })
       }
 
-      // Check if shift is full
-      if (bartenders.length >= shift.bartenders_required) {
-        return NextResponse.json({ error: "המשמרת מלאה" }, { status: 400 })
-      }
-
       // Add user to bartenders
       const updatedBartenders = [...bartenders, user.id]
       const newState = updatedBartenders.length >= shift.bartenders_required ? "מלאה" : shift.state
 
       // Update shift
-      const { data: updatedShift, error: updateError } = await supabase
+      const { data: updatedShift, error: updateError } = await adminClient
         .from("shifts")
         .update({
           bartenders: updatedBartenders,
@@ -70,7 +86,6 @@ export async function PATCH(
       }
 
       // Fetch bartender details
-      const adminClient = createAdminClient()
       const { data: profiles } = await adminClient
         .from("profiles")
         .select("id, full_name, role")
