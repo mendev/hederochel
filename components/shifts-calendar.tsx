@@ -22,7 +22,7 @@ export type ShiftType =
   | "ערב צעירים"
   | "ארוע מיוחד"
 
-export type ShiftState = "פתוחה" | "מלאה" | "סגורה"
+export type ShiftState = "פתוחה" | "מלאה" | "סגורה" | "running"
 
 export interface Shift {
   id: number
@@ -73,12 +73,18 @@ const stateConfig: Record<
     color: "bg-gray-500 text-white border-gray-600",
     label: "סגורה",
   },
+  running: {
+    symbol: "▶",
+    color: "bg-blue-500 text-white border-blue-600",
+    label: "פועלת",
+  },
 }
 
 const stateBadgeVariant: Record<ShiftState, string> = {
   פתוחה: "bg-green-100 text-green-700",
   מלאה: "bg-red-100 text-red-700",
   סגורה: "bg-gray-200 text-gray-700",
+  running: "bg-blue-100 text-blue-700",
 }
 
 const hebrewMonths = [
@@ -139,8 +145,9 @@ export function ShiftsCalendar({
   const [signingUp, setSigningUp] = React.useState(false)
   const [signupError, setSignupError] = React.useState<string | null>(null)
   const [currentUserId, setCurrentUserId] = React.useState<string | null>(null)
+  const [currentUserSuspended, setCurrentUserSuspended] = React.useState(false)
 
-  // Fetch current user
+  // Fetch current user (including suspension status)
   React.useEffect(() => {
     async function getCurrentUser() {
       try {
@@ -148,6 +155,7 @@ export function ShiftsCalendar({
         if (res.ok) {
           const data = await res.json()
           setCurrentUserId(data.user?.id || null)
+          setCurrentUserSuspended(data.user?.suspended ?? false)
         }
       } catch (err) {
         console.error("Failed to fetch current user:", err)
@@ -469,9 +477,8 @@ export function ShiftsCalendar({
                     onClick={handleSignup}
                     disabled={
                       signingUp ||
-                      selectedShift.state === "סגורה" ||
-                      selectedShift.state === "מלאה" ||
-                      selectedShift.bartenders.length >= selectedShift.bartenders_required
+                      currentUserSuspended ||
+                      selectedShift.state !== "פתוחה"
                     }
                     className="w-full"
                   >

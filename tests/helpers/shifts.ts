@@ -65,6 +65,72 @@ export async function insertTestShift(opts: InsertShiftOptions): Promise<number>
   return data.id as number;
 }
 
+export interface InsertCalendarShiftOptions {
+  state: StoredShiftState;
+  startAt: Date;
+  /**
+   * shift_date in YYYY-MM-DD format.
+   * Defaults to today so the shift appears in the current-month calendar
+   * without having to navigate forward/backward.
+   */
+  shiftDate?: string;
+  /**
+   * Title prefix; made unique by appending Date.now().
+   * The full title is returned so callers can locate the shift dot in the
+   * calendar via button[title="..."].
+   */
+  titlePrefix?: string;
+}
+
+/**
+ * Inserts a test shift with a specific shift_date and returns both the shift
+ * id and the generated title.  Use this for UI tests that need the shift to
+ * appear in the visible calendar month.
+ *
+ * Cleanup: call cleanupTestShift(id) in afterEach.
+ */
+export async function insertCalendarTestShift(
+  opts: InsertCalendarShiftOptions,
+): Promise<{ id: number; title: string }> {
+  if (!supabaseKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set');
+
+  const supabase = createClient(supabaseUrl, supabaseKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+
+  const shiftDate = opts.shiftDate ?? new Date().toISOString().slice(0, 10);
+  const prefix = opts.titlePrefix ?? 'test-signup-guard';
+  const title = `${prefix}-${Date.now()}`;
+
+  const { data, error } = await supabase
+    .from('shifts')
+    .insert({
+      title,
+      shift_date: shiftDate,
+      shift_start_time: '10:00:00',
+      shift_type: 'משמרת רגילה',
+      state: opts.state,
+      bartenders_required: 3,
+      bartenders: [],
+    })
+    .select('id')
+    .single();
+
+  if (error) throw new Error(`insertCalendarTestShift insert failed: ${error.message}`);
+
+  const { error: updateError } = await supabase
+    .from('shifts')
+    .update({ start_at: opts.startAt.toISOString() })
+    .eq('id', data.id);
+
+  if (updateError) {
+    await supabase.from('shifts').delete().eq('id', data.id);
+    throw new Error(`insertCalendarTestShift start_at override failed: ${updateError.message}`);
+  }
+
+  return { id: data.id as number, title };
+}
+
 /**
  * Deletes a test shift by id. Best-effort — never fails the test suite.
  */

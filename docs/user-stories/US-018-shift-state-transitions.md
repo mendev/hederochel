@@ -40,6 +40,8 @@
 8. System validates the report is complete
 9. System transitions the shift status to "closed"
 
+**Decision (2026-03-22):** A shift closes only when a report is submitted. End time passing does not auto-close a shift. A running shift with no report stays "running" indefinitely until a report is filed.
+
 ---
 
 ## Alternative Flows
@@ -61,8 +63,8 @@
 
 ### AF-4: Report Not Submitted
 - Shift end time passes without a report submission
-- Shift remains in "running" status
-- System may notify the manager that a report is overdue
+- Shift remains in "running" status indefinitely — this is by design
+- A running shift with no report is visible to managers as overdue in the shift management view
 
 ---
 

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { createServerClientWithCookies } from "@/lib/supabase/server"
+import { createAdminClient, createServerClientWithCookies } from "@/lib/supabase/server"
 
 // GET /api/auth/user - Get current authenticated user
 export async function GET() {
@@ -14,7 +14,14 @@ export async function GET() {
       return NextResponse.json({ user: null }, { status: 200 })
     }
 
-    return NextResponse.json({ user })
+    // Check suspension via admin client — banned_until exists at runtime but is absent
+    // from the SDK's User type definition, so we cast to access it.
+    const adminClient = createAdminClient()
+    const { data: { user: adminUser } } = await adminClient.auth.admin.getUserById(user.id)
+    const bannedUntil = (adminUser as unknown as { banned_until?: string | null })?.banned_until
+    const suspended = bannedUntil ? new Date(bannedUntil) > new Date() : false
+
+    return NextResponse.json({ user: { ...user, suspended } })
   } catch (error) {
     console.error("Error fetching user:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
