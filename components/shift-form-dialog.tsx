@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -37,6 +38,10 @@ export function ShiftFormDialog({
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [deleting, setDeleting] = React.useState(false)
+  const [bartenderDetails, setBartenderDetails] = React.useState<
+    Array<{ id: string; full_name: string; role: string }>
+  >([])
+  const [removingBartender, setRemovingBartender] = React.useState<string | null>(null)
 
   const [formData, setFormData] = React.useState({
     title: "",
@@ -60,6 +65,7 @@ export function ShiftFormDialog({
         bartenders_required: shift.bartenders_required,
         notes: shift.notes || "",
       })
+      setBartenderDetails(shift.bartender_details || [])
     } else {
       // Reset form for new shift
       setFormData({
@@ -71,6 +77,7 @@ export function ShiftFormDialog({
         bartenders_required: 3,
         notes: "",
       })
+      setBartenderDetails([])
     }
     setError(null)
   }, [shift, open])
@@ -102,6 +109,24 @@ export function ShiftFormDialog({
       setError(err instanceof Error ? err.message : "Failed to save shift")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleRemoveBartender = async (bartenderId: string) => {
+    if (!shift) return
+    try {
+      setRemovingBartender(bartenderId)
+      const res = await fetch(`/api/shifts/${shift.id}/bartenders/${bartenderId}`, {
+        method: "DELETE",
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Failed to remove bartender")
+      setBartenderDetails((prev) => prev.filter((b) => b.id !== bartenderId))
+      toast.success("הברמן הוסר מהמשמרת")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "שגיאה בהסרת הברמן")
+    } finally {
+      setRemovingBartender(null)
     }
   }
 
@@ -257,6 +282,33 @@ export function ShiftFormDialog({
               />
             </div>
           </div>
+
+          {/* Bartender removal — visible only for open and full shifts */}
+          {shift && (formData.state === "פתוחה" || formData.state === "מלאה") && (
+            <div className="border-t pt-4">
+              <h4 className="font-semibold mb-2">ברמנים רשומים</h4>
+              {bartenderDetails.length === 0 ? (
+                <p className="text-sm text-muted-foreground">אין ברמנים רשומים</p>
+              ) : (
+                <ul className="space-y-2">
+                  {bartenderDetails.map((bartender) => (
+                    <li key={bartender.id} className="flex items-center justify-between text-sm">
+                      <span>{bartender.full_name}</span>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleRemoveBartender(bartender.id)}
+                        disabled={removingBartender === bartender.id}
+                      >
+                        {removingBartender === bartender.id ? "מסיר..." : "הסר"}
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
 
           <DialogFooter className="mt-6 gap-2">
             {shift && (
