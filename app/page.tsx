@@ -21,15 +21,29 @@ type Page = 'menu' | 'my-shifts' | 'shifts' | 'reports' | 'login' | 'receipes' |
 export default function Home() {
   const [activePage, setActivePage] = useState<Page>('default');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [myShiftsKey, setMyShiftsKey] = useState(0);
 
   
   // Use centralized auth state from AuthContext
   const { user, role, fullName, loading, signOut } = useAuth();
   useEffect(() => {
-  if (!loading && user && activePage === 'login') {
-    setActivePage('menu'); // Redirect authenticated users away from login page
-  }
-  }, [user, loading, activePage]);
+    if (!loading && user && activePage === 'login') {
+      // Role-based redirect after login
+      if (role === 'manager') {
+        setActivePage('shift-management');
+      } else {
+        setActivePage('my-shifts');
+      }
+    }
+    if (!loading && user && activePage === 'default') {
+      // Role-based redirect on initial load when already authenticated
+      if (role === 'manager') {
+        setActivePage('shift-management');
+      } else {
+        setActivePage('my-shifts');
+      }
+    }
+  }, [user, loading, activePage, role]);
   const isAuthenticated = !!user;
   const username = fullName || user?.email || null;
   console.log("Rendered with user:", user, "fullName:", fullName);
@@ -42,12 +56,13 @@ export default function Home() {
   }
 
   const handlePageChange = (page: Page) => {
-    // Page-level quick checks (UI level only), renderPage() will do final checks 
-    if ((page === 'shifts' || page === 'receipes' || page == 'my-shifts' ) && !isAuthenticated) {
-      setActivePage('menu');
+    // Page-level quick checks (UI level only), renderPage() will do final checks
+    if ((page === 'shifts' || page === 'receipes' || page === 'my-shifts') && !isAuthenticated) {
+      setActivePage('login');
     } else if (page === 'reports' && !(role === 'shift-manager' || role === 'manager')) {
-      setActivePage('menu');
+      setActivePage('login');
     } else {
+      if (page === 'my-shifts') setMyShiftsKey((k) => k + 1);
       setActivePage(page);
     }
     setSidebarOpen(false);
@@ -63,17 +78,17 @@ export default function Home() {
       case 'login':
         return <LoginPage />;
       case 'shifts':
-        if (!isAuthenticated) return <MenuPage />;
+        if (!isAuthenticated) return <LoginPage />;
         return <ShiftsPage />;
       case "my-shifts":
-        if (!isAuthenticated) return <MenuPage />;
-        return <MyShifts />;
+        if (!isAuthenticated) return <LoginPage />;
+        return <MyShifts key={myShiftsKey} />;
       case 'receipes':
-        if (!isAuthenticated) return <MenuPage />;
+        if (!isAuthenticated) return <LoginPage />;
         return <UnderConstructionPage />;
       case 'reports':
-        if (!isAuthenticated) return <MenuPage />;
-        if (!(role === 'shift-manager' || role === 'manager')) return <MenuPage />; // or show 403
+        if (!isAuthenticated) return <LoginPage />;
+        if (!(role === 'shift-manager' || role === 'manager')) return <LoginPage />;
         return <UnderConstructionPage />;
       case 'shift-management':
         return <ShiftManagmentPage />;

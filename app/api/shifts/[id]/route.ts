@@ -112,8 +112,11 @@ export async function PATCH(
     }
 
     if (action === "signoff") {
+      // Use adminClient to avoid sb_publishable_* JWT issues with PostgREST
+      const signoffAdmin = createAdminClient()
+
       // Fetch the current shift
-      const { data: shift, error: fetchError } = await supabase
+      const { data: shift, error: fetchError } = await signoffAdmin
         .from("shifts")
         .select("*")
         .eq("id", id)
@@ -134,7 +137,7 @@ export async function PATCH(
       const newState = shift.state === "סגורה" ? "סגורה" : "פתוחה"
 
       // Update shift
-      const { data: updatedShift, error: updateError } = await supabase
+      const { data: updatedShift, error: updateError } = await signoffAdmin
         .from("shifts")
         .update({
           bartenders: updatedBartenders,
@@ -152,8 +155,7 @@ export async function PATCH(
       // Fetch bartender details
       let bartenderProfiles: Record<string, { full_name: string; role: string }> = {}
       if (updatedBartenders.length > 0) {
-        const adminClient = createAdminClient()
-        const { data: profiles } = await adminClient
+        const { data: profiles } = await signoffAdmin
           .from("profiles")
           .select("id, full_name, role")
           .in("id", updatedBartenders)
@@ -214,8 +216,28 @@ export async function PUT(
       )
     }
 
+    // Fetch current shift to check effective state before updating
+    const putAdmin = createAdminClient()
+    const { data: currentShift, error: fetchError } = await putAdmin
+      .from("shifts")
+      .select("*")
+      .eq("id", id)
+      .single()
+
+    if (fetchError || !currentShift) {
+      return NextResponse.json({ error: "Shift not found" }, { status: 404 })
+    }
+
+    const effectiveState = computeEffectiveState(currentShift as DBShift)
+    if (effectiveState === "running") {
+      return NextResponse.json({ error: "לא ניתן לעדכן משמרת פועלת" }, { status: 400 })
+    }
+    if (currentShift.state === "סגורה") {
+      return NextResponse.json({ error: "לא ניתן לעדכן משמרת סגורה" }, { status: 400 })
+    }
+
     // Update shift
-    const { data: updatedShift, error: updateError } = await supabase
+    const { data: updatedShift, error: updateError } = await putAdmin
       .from("shifts")
       .update({
         title,

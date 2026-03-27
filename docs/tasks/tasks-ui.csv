@@ -4,9 +4,9 @@ TSK-UI-002,Login page,Implement login page with email/password authentication fo
 TSK-UI-003,Signup page,Implement signup page allowing new bartender registration,US-UI-002,REQ-UI-003,done,High
 TSK-UI-004,Bartender dashboard,Build bartender dashboard showing upcoming shifts and available open shifts,US-UI-003,REQ-UI-004,done,High
 TSK-UI-005,Manager dashboard,Build manager dashboard with calendar view and shift management actions,US-UI-004,REQ-UI-005,done,High
-TSK-UI-006,User profile page,Implement profile page for viewing and editing personal details,US-UI-005,REQ-UI-006,done,Medium
+TSK-UI-006,User profile page,Implement profile page for viewing and editing personal details. NOTE: marked done in error — no component or route exists in the app.,US-UI-005,REQ-UI-006,todo,Medium
 TSK-UI-007,Default landing page redirect,Redirect users to the appropriate dashboard based on their role after login,US-UI-006,REQ-UI-007,todo,Medium
-TSK-UI-008,Shift detail popup,Create modal/popup component showing full shift info; assigned bartenders; and status; reusable from calendar; manager shift list; and My Shifts page,US-020,REQ-UI-008,todo,High
+TSK-UI-008,Shift detail popup,Create modal/popup component showing full shift info; assigned bartenders; and status; reusable from calendar; manager shift list; and My Shifts page,US-020,REQ-UI-008,done,High
 TSK-UI-009,Report filling UI,Build report page displaying the task checklist for a running shift,US-UI-008,REQ-UI-009,todo,High
 TSK-UI-010,Task template management page,Build page for managers to create; edit; delete; and activate task templates,US-UI-009,REQ-UI-010,todo,High
 TSK-UI-011,Role-based navigation,Adapt navigation menu to user role; showing only permitted menu items,US-UI-010,REQ-UI-011,done,High

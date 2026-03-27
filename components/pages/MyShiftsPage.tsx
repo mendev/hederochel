@@ -17,6 +17,7 @@ const stateBadgeVariant: Record<string, string> = {
   פתוחה: "bg-green-100 text-green-700",
   מלאה: "bg-yellow-100 text-yellow-800",
   סגורה: "bg-gray-200 text-gray-700",
+  running: "bg-blue-100 text-blue-700",
 }
 
 const formatTime = (time: string | null | undefined) =>
@@ -30,6 +31,7 @@ function MyShifts() {
   const [signingOff, setSigningOff] = React.useState<number | null>(null)
   const [selectedShift, setSelectedShift] = React.useState<Shift | null>(null)
   const [dialogOpen, setDialogOpen] = React.useState(false)
+  const [isDialogPast, setIsDialogPast] = React.useState(false)
 
   React.useEffect(() => {
     if (authLoading) return
@@ -59,8 +61,9 @@ function MyShifts() {
     fetchData()
   }, [authLoading, user])
 
-  const handleShiftClick = (shift: Shift) => {
+  const handleShiftClick = (shift: Shift, past = false) => {
     setSelectedShift(shift)
+    setIsDialogPast(past)
     setDialogOpen(true)
   }
 
@@ -105,6 +108,12 @@ function MyShifts() {
     })
   }
 
+  const today = new Date().toISOString().split("T")[0]
+  const upcomingShifts = shifts.filter((s) => s.shift_date >= today)
+  const pastShifts = shifts
+    .filter((s) => s.shift_date < today)
+    .sort((a, b) => b.shift_date.localeCompare(a.shift_date))
+
   if (error) {
     return (
       <div className="p-6" dir="rtl">
@@ -118,11 +127,11 @@ function MyShifts() {
     <div className="p-6" dir="rtl">
       <h2 className="text-2xl font-bold mb-6 text-gray-900">המשמרות שלי</h2>
 
-      {shifts.length === 0 ? (
+      {upcomingShifts.length === 0 ? (
         <p className="text-gray-600">אין לך משמרות רשומות כרגע</p>
       ) : (
         <div className="space-y-3">
-          {shifts.map((shift) => (
+          {upcomingShifts.map((shift) => (
             <div
               key={shift.id}
               className="flex items-center justify-between p-4 bg-white border-2 border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all"
@@ -151,6 +160,37 @@ function MyShifts() {
           ))}
         </div>
       )}
+
+      {/* Past shifts history */}
+      <div className="mt-10">
+        <h2 className="text-xl font-bold mb-4 text-gray-900">היסטוריית משמרות</h2>
+        {pastShifts.length === 0 ? (
+          <p className="text-gray-600">אין משמרות קודמות</p>
+        ) : (
+          <div className="space-y-3">
+            {pastShifts.map((shift) => (
+              <div
+                key={shift.id}
+                className="flex items-center justify-between p-4 bg-white border-2 border-gray-100 rounded-lg hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer opacity-80"
+                onClick={() => handleShiftClick(shift, true)}
+              >
+                <div>
+                  <h3 className="font-semibold text-gray-900">{shift.title}</h3>
+                  <p className="text-sm text-gray-500">
+                    {formatDate(shift.shift_date)} · {formatTime(shift.shift_start_time)}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge className={stateBadgeVariant[shift.state || shift.shift_state] ?? "bg-gray-200 text-gray-700"}>
+                    {shift.state || shift.shift_state}
+                  </Badge>
+                  <Badge className="bg-gray-100 text-gray-500 text-xs">אין ח״וד עדיין</Badge>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Shift Details Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -199,16 +239,18 @@ function MyShifts() {
                   </div>
                 )}
 
-                {/* Sign-off button */}
-                <Button
-                  onClick={() => handleSignoff(selectedShift.id)}
-                  disabled={loading || signingOff === selectedShift.id || selectedShift.state === "סגורה"}
-                  variant="destructive"
-                  className="w-full"
-                  size="lg"
-                >
-                  {signingOff === selectedShift.id ? "מבטל הרשמה..." : "בטל הרשמה"}
-                </Button>
+                {/* Sign-off button — hidden for past shifts */}
+                {!isDialogPast && (
+                  <Button
+                    onClick={() => handleSignoff(selectedShift.id)}
+                    disabled={loading || signingOff === selectedShift.id || selectedShift.state === "סגורה"}
+                    variant="destructive"
+                    className="w-full"
+                    size="lg"
+                  >
+                    {signingOff === selectedShift.id ? "מבטל הרשמה..." : "בטל הרשמה"}
+                  </Button>
+                )}
               </div>
             </>
           )}
