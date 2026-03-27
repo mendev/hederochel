@@ -37,18 +37,18 @@ export async function POST(request: Request) {
     })
 
     if (authError) {
-      console.error("Error creating user:", authError)
-
-      // Check for duplicate email error
+      // Check for duplicate email error — expected client error, not a server fault
       if (authError.message.includes("already registered") ||
           authError.message.includes("already exists") ||
-          authError.code === "user_already_exists") {
+          authError.code === "user_already_exists" ||
+          authError.code === "email_exists") {
         return NextResponse.json(
           { error: "שם משתמש זה כבר תפוס. אנא בחר שם משתמש אחר." },
           { status: 409 }
         )
       }
 
+      console.error("Error creating user:", authError)
       return NextResponse.json({ error: authError.message }, { status: 500 })
     }
 

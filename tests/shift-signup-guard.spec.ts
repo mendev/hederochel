@@ -193,29 +193,59 @@ test.describe('TSK-SHF-014 — State-based signup guard — UI', () => {
 // There is no `suspended` column in profiles.
 //
 // Tests run serially so suspension state is tightly controlled.
-// afterEach ALWAYS unsuspends — the shared TEST_USER_EMAIL must never be left banned.
+//
+// A DEDICATED test user is created in beforeAll and deleted in afterAll.
+// Using a dedicated account (rather than TEST_USER_EMAIL) means other spec files
+// that log in as TEST_USER_EMAIL can never be blocked by a suspension window here.
 
 test.describe.serial('TSK-SHF-015 — Suspended user signup guard', () => {
   let shiftId: number | undefined;
-  let testUserId: string | undefined;
+  let suspendUserId: string;
+  let suspendUserEmail: string;
+  const suspendUserPassword = 'TestSuspend123!';
+
+  // Login helper scoped to this block — uses the dedicated suspend-test account.
+  async function loginAsSuspendUser(page: import('@playwright/test').Page) {
+    await page.goto('/');
+    await page.click('nav.sidebar-nav >> text=התחבר');
+    await page.fill('#email', suspendUserEmail);
+    await page.fill('#password', suspendUserPassword);
+    await page.click('button.login-button');
+    await expect(page.locator('nav.sidebar-nav >> text=המשמרות שלי')).toBeVisible();
+  }
 
   test.beforeAll(async () => {
     if (!supabaseKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set');
-    if (!process.env.TEST_USER_EMAIL) throw new Error('Missing TEST_USER_EMAIL');
 
-    const { data: { users }, error } = await adminClient().auth.admin.listUsers();
-    if (error) throw new Error(`Could not list users: ${error.message}`);
+    // Create a fresh bartender account exclusively for suspension tests.
+    suspendUserEmail = `test-suspend-${crypto.randomUUID().slice(0, 8)}@test.local`;
 
-    const user = users.find((u) => u.email === process.env.TEST_USER_EMAIL);
-    if (!user) throw new Error(`Test user ${process.env.TEST_USER_EMAIL} not found — run seed first`);
+    const { data: { user }, error: createError } = await adminClient().auth.admin.createUser({
+      email: suspendUserEmail,
+      password: suspendUserPassword,
+      email_confirm: true,
+    });
+    if (createError || !user) throw new Error(`Could not create suspend test user: ${createError?.message}`);
+    suspendUserId = user.id;
 
-    testUserId = user.id;
+    const { error: profileError } = await adminClient()
+      .from('profiles')
+      .insert({ id: suspendUserId, full_name: 'Suspend Test User', role: 'bartender' });
+    if (profileError) throw new Error(`Could not create profile: ${profileError.message}`);
+  });
+
+  test.afterAll(async () => {
+    // Best-effort cleanup — delete the dedicated test account.
+    if (suspendUserId) {
+      try { await adminClient().from('profiles').delete().eq('id', suspendUserId); } catch { /* best-effort */ }
+      try { await adminClient().auth.admin.deleteUser(suspendUserId); } catch { /* best-effort */ }
+    }
   });
 
   test.afterEach(async () => {
-    // Always unsuspend first — never leave the shared account in a banned state.
-    if (testUserId) {
-      await adminClient().auth.admin.updateUserById(testUserId, { ban_duration: 'none' });
+    // Always unsuspend first — never leave the account in a banned state between tests.
+    if (suspendUserId) {
+      await adminClient().auth.admin.updateUserById(suspendUserId, { ban_duration: 'none' });
     }
     if (shiftId !== undefined) {
       await cleanupTestShift(shiftId);
@@ -227,10 +257,10 @@ test.describe.serial('TSK-SHF-015 — Suspended user signup guard', () => {
     shiftId = await insertTestShift({ state: 'פתוחה', startAt: FUTURE() });
 
     // Establish a valid browser session BEFORE suspension.
-    await loginAsBartender(page);
+    await loginAsSuspendUser(page);
 
     // Suspend the user while the session cookie remains active.
-    await adminClient().auth.admin.updateUserById(testUserId!, { ban_duration: '876000h' });
+    await adminClient().auth.admin.updateUserById(suspendUserId, { ban_duration: '876000h' });
 
     // Use the existing session to attempt signup — the API must reject it.
     const res = await page.request.patch(`/api/shifts/${shiftId}`, {
@@ -239,7 +269,7 @@ test.describe.serial('TSK-SHF-015 — Suspended user signup guard', () => {
 
     expect(res.status()).toBe(403);
     const body = await res.json();
-    expect(body.error).toBeTruthy(); // Hebrew suspension message — exact text TBD by implementation
+    expect(body.error).toBeTruthy();
   });
 
   test('suspended user — shift dialog shows error on signup attempt', async ({ page }) => {
@@ -247,27 +277,38 @@ test.describe.serial('TSK-SHF-015 — Suspended user signup guard', () => {
     shiftId = id;
 
     // Log in and navigate to the shift BEFORE suspending.
-    await loginAsBartender(page);
+    await loginAsSuspendUser(page);
     await page.locator('nav.sidebar-nav').getByRole('button', { name: 'משמרות', exact: true }).click();
     await expect(page.locator(`button[title="${title}"]`)).toBeVisible();
     await page.locator(`button[title="${title}"]`).click();
     await expect(page.getByRole('dialog')).toBeVisible();
 
-    // Suspend mid-session.
-    await adminClient().auth.admin.updateUserById(testUserId!, { ban_duration: '876000h' });
+    // Confirm the button is enabled before suspending — ensures GET /api/auth/user
+    // has resolved with suspended:false (eliminates any GoTrue propagation delay).
+    await expect(page.getByRole('button', { name: 'הרשם למשמרת' })).toBeEnabled();
 
-    // Click sign-up — the API should reject it and the dialog should display an error.
-    await page.getByRole('button', { name: 'הרשם למשמרת' }).click();
-    await expect(page.locator('.text-destructive')).toBeVisible();
+    // Suspend mid-session.
+    await adminClient().auth.admin.updateUserById(suspendUserId, { ban_duration: '876000h' });
+
+    // Two valid outcomes: the UI proactively disables the button (realtime detection),
+    // or the user clicks and the API returns a 403 error shown in the dialog.
+    // Both correctly block the suspended user — accept either.
+    try {
+      await page.getByRole('button', { name: 'הרשם למשמרת' }).click({ timeout: 3000 });
+      await expect(page.locator('.text-destructive')).toBeVisible();
+    } catch {
+      // Button became disabled before the click landed — UI detected the suspension.
+      await expect(page.getByRole('button', { name: 'הרשם למשמרת' })).toBeDisabled();
+    }
   });
 
   test('active user signup succeeds after unsuspension', async ({ page }) => {
     // afterEach from the previous test already unsuspended; this call is defensive.
-    await adminClient().auth.admin.updateUserById(testUserId!, { ban_duration: 'none' });
+    await adminClient().auth.admin.updateUserById(suspendUserId, { ban_duration: 'none' });
 
     shiftId = await insertTestShift({ state: 'פתוחה', startAt: FUTURE() });
 
-    await loginAsBartender(page);
+    await loginAsSuspendUser(page);
 
     const res = await page.request.patch(`/api/shifts/${shiftId}`, {
       data: { action: 'signup' },

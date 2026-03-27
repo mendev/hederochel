@@ -100,7 +100,7 @@ export async function insertCalendarTestShift(
 
   const shiftDate = opts.shiftDate ?? new Date().toISOString().slice(0, 10);
   const prefix = opts.titlePrefix ?? 'test-signup-guard';
-  const title = `${prefix}-${Date.now()}`;
+  const title = `${prefix}-${crypto.randomUUID()}`;
 
   const { data, error } = await supabase
     .from('shifts')
