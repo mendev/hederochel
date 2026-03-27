@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForTestUserNotSuspended } from './helpers/suspension-guard';
 
 // REQ-USR-011: Bartenders cannot access manager-only pages or API routes
 
@@ -6,12 +7,13 @@ test.describe('User management access control', () => {
   let userEmail: string;
   let userPassword: string;
 
-  test.beforeEach(() => {
+  test.beforeEach(async () => {
     if (!process.env.TEST_USER_EMAIL || !process.env.TEST_USER_PASSWORD) {
       throw new Error('Missing TEST_USER_EMAIL or TEST_USER_PASSWORD');
     }
     userEmail = process.env.TEST_USER_EMAIL;
     userPassword = process.env.TEST_USER_PASSWORD;
+    await waitForTestUserNotSuspended();
   });
 
   // ── UI access ──────────────────────────────────────────────────────────────

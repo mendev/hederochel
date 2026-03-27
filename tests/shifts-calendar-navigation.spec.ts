@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForTestUserNotSuspended } from './helpers/suspension-guard';
 
 test.describe('Shifts calendar navigation', () => {
   test.beforeEach(async ({ page }) => {
@@ -8,6 +9,7 @@ test.describe('Shifts calendar navigation', () => {
       throw new Error('Missing TEST_USER_EMAIL or TEST_USER_PASSWORD');
     }
 
+    await waitForTestUserNotSuspended();
     await page.goto('/');
     await page.click('nav.sidebar-nav >> text=התחבר');
     await page.fill('#email', email);
