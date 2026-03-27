@@ -1,9 +1,22 @@
 import { test, expect } from '@playwright/test';
+import { cleanupTestUser } from './helpers/cleanup';
 
 test.describe.serial('User self-signup flow', () => {
-  const signupEmail = `signup-test-${Date.now()}@test.com`;
+  let signupEmail: string;
   const signupPassword = 'SignUp123!';
   const signupFullName = 'Signup Test User';
+
+  test.beforeAll(async () => {
+    // UUID-based email ensures no collision even when the serial block is
+    // retried (retries: 2 in CI re-runs the entire serial group from test 1).
+    signupEmail = `signup-test-${crypto.randomUUID().slice(0, 8)}@test.com`;
+  });
+
+  test.afterAll(async () => {
+    // Safety net: if the UI-based cleanup test fails, remove the user directly
+    // so the DB is clean for the next retry / run.
+    await cleanupTestUser(signupEmail);
+  });
 
   test('user can self-register via the signup dialog', async ({ page }) => {
     await page.goto('/');
