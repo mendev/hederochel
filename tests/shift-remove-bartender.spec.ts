@@ -72,7 +72,7 @@ test.describe('TSK-SHF-018 — Remove bartender UI', () => {
     const { id: userId, full_name } = await getTestUserProfile();
     const { id, title } = await insertCalendarTestShift({ state: 'פתוחה', startAt: FUTURE() });
     shiftId = id;
-    await adminClient().from('shifts').update({ bartenders: [userId] }).eq('id', id);
+    await adminClient().from('shift_assignments').insert({ shift_id: id, user_id: userId });
 
     await loginAsManager(page);
     await openEditDialog(page, title);
@@ -86,10 +86,8 @@ test.describe('TSK-SHF-018 — Remove bartender UI', () => {
     const { id: userId, full_name } = await getTestUserProfile();
     const { id, title } = await insertCalendarTestShift({ state: 'מלאה', startAt: FUTURE() });
     shiftId = id;
-    await adminClient()
-      .from('shifts')
-      .update({ bartenders: [userId], bartenders_required: 1 })
-      .eq('id', id);
+    await adminClient().from('shifts').update({ bartenders_required: 1 }).eq('id', id);
+    await adminClient().from('shift_assignments').insert({ shift_id: id, user_id: userId });
 
     await loginAsManager(page);
     await openEditDialog(page, title);
@@ -115,7 +113,7 @@ test.describe('TSK-SHF-018 — Remove bartender UI', () => {
     const { id: userId } = await getTestUserProfile();
     const { id, title } = await insertCalendarTestShift({ state: 'סגורה', startAt: PAST() });
     shiftId = id;
-    await adminClient().from('shifts').update({ bartenders: [userId] }).eq('id', id);
+    await adminClient().from('shift_assignments').insert({ shift_id: id, user_id: userId });
 
     await loginAsManager(page);
     await openEditDialog(page, title);
@@ -127,7 +125,7 @@ test.describe('TSK-SHF-018 — Remove bartender UI', () => {
     const { id: userId } = await getTestUserProfile();
     const { id, title } = await insertCalendarTestShift({ state: 'פתוחה', startAt: PAST() });
     shiftId = id;
-    await adminClient().from('shifts').update({ bartenders: [userId] }).eq('id', id);
+    await adminClient().from('shift_assignments').insert({ shift_id: id, user_id: userId });
 
     await loginAsManager(page);
     await openEditDialog(page, title);
@@ -156,7 +154,7 @@ test.describe('TSK-SHF-018 — Remove bartender UI', () => {
     const { id: userId, full_name } = await getTestUserProfile();
     const { id, title } = await insertCalendarTestShift({ state: 'פתוחה', startAt: FUTURE() });
     shiftId = id;
-    await adminClient().from('shifts').update({ bartenders: [userId] }).eq('id', id);
+    await adminClient().from('shift_assignments').insert({ shift_id: id, user_id: userId });
 
     await loginAsManager(page);
     await openEditDialog(page, title);
@@ -177,10 +175,8 @@ test.describe('TSK-SHF-018 — Remove bartender UI', () => {
     const { id: userId } = await getTestUserProfile();
     const { id, title } = await insertCalendarTestShift({ state: 'מלאה', startAt: FUTURE() });
     shiftId = id;
-    await adminClient()
-      .from('shifts')
-      .update({ bartenders: [userId], bartenders_required: 1 })
-      .eq('id', id);
+    await adminClient().from('shifts').update({ bartenders_required: 1 }).eq('id', id);
+    await adminClient().from('shift_assignments').insert({ shift_id: id, user_id: userId });
 
     await loginAsManager(page);
     await openEditDialog(page, title);
