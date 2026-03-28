@@ -12,13 +12,12 @@ export type EffectiveShiftState = ShiftState | "running"
 
 export interface DBShift {
   id: number
-  shitf_date: string
+  shift_date: string
   shift_start_time: string
   title: string
   shift_type: ShiftType
   notes: string | null
-  bartenders_required: number | 3
-  bartenders: string[] // Array of user IDs
+  bartenders_required: number
   state: ShiftState
   start_at: string | null
   report_id: string | null
@@ -38,7 +37,7 @@ export function computeEffectiveState(shift: DBShift): EffectiveShiftState {
   return shift.state
 }
 
-// GET /api/shifts - Fetch all shifts or filter by date range
+// GET /api/shifts - Fetch all shifts or filter by date range / userId
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
@@ -51,22 +50,30 @@ export async function GET(request: Request) {
     // issues with the new sb_publishable_ key format in local Supabase dev.
     const supabase = createAdminClient()
 
-    let query = supabase.from("shifts").select("*").order("shift_start_time", { ascending: true })
-
-    // Filter by date range if provided
-    if (startDate) {
-      query = query.gte("shift_date", startDate)
-    }
-    if (endDate) {
-      query = query.lte("shift_date", endDate)
-    }
-    // Filter to shifts the user is registered for.
-    // bartenders is jsonb — UUID must be quoted inside the JSON array string
-    // to avoid a 22P02 "invalid input syntax for type json" error from PostgREST.
+    // If filtering by userId, first resolve the shift IDs the user is assigned to.
+    // shift_assignments is the authoritative source; the old bartenders jsonb is dropped.
+    let filteredShiftIds: number[] | null = null
     if (userId) {
-      query = query.filter("bartenders", "cs", `["${userId}"]`)
+      const { data: assignments } = await supabase
+        .from("shift_assignments")
+        .select("shift_id")
+        .eq("user_id", userId)
+      filteredShiftIds = (assignments || []).map((a: { shift_id: number }) => a.shift_id)
+      if (filteredShiftIds.length === 0) {
+        return NextResponse.json({ shifts: [] })
+      }
     }
 
+    let query = supabase
+      .from("shifts")
+      .select("*")
+      .order("shift_start_time", { ascending: true })
+
+    if (startDate) query = query.gte("shift_date", startDate)
+    if (endDate)   query = query.lte("shift_date", endDate)
+    if (filteredShiftIds !== null) query = query.in("id", filteredShiftIds)
+
+    // Run shifts query and profiles fetch in parallel
     const [{ data: shifts, error }, { data: profiles }] = await Promise.all([
       query,
       supabase.from("profiles").select("id, full_name, role"),
@@ -77,7 +84,17 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    const bartenderProfiles: Record<string, { full_name: string; role: string }> = (profiles ?? []).reduce(
+    // Fetch all assignments for the returned shifts
+    const shiftIds = (shifts || []).map((s) => s.id)
+    const { data: allAssignments } = shiftIds.length > 0
+      ? await supabase
+          .from("shift_assignments")
+          .select("shift_id, user_id")
+          .in("shift_id", shiftIds)
+      : { data: [] }
+
+    // Build lookup maps
+    const profileMap: Record<string, { full_name: string; role: string }> = (profiles ?? []).reduce(
       (acc, p) => {
         acc[p.id] = { full_name: p.full_name, role: p.role }
         return acc
@@ -85,18 +102,27 @@ export async function GET(request: Request) {
       {} as Record<string, { full_name: string; role: string }>,
     )
 
-    // Enrich shifts with bartender names and apply derived running state.
-    // Both `state` and `shift_state` are set to the effective value so that
-    // callers checking either field get the correct result.
-    const enrichedShifts = shifts?.map((shift) => {
+    const assignmentMap = new Map<number, string[]>()
+    for (const a of allAssignments || []) {
+      const list = assignmentMap.get(a.shift_id) || []
+      list.push(a.user_id)
+      assignmentMap.set(a.shift_id, list)
+    }
+
+    // Enrich shifts: derive running state and attach bartender info.
+    // Both `state` and `shift_state` are set so callers checking either field are correct.
+    // `bartenders` (string[]) is reconstructed from shift_assignments for component compat.
+    const enrichedShifts = (shifts || []).map((shift) => {
       const effectiveState = computeEffectiveState(shift)
+      const bartenders = assignmentMap.get(shift.id) || []
       return {
         ...shift,
         state: effectiveState,
         shift_state: effectiveState,
-        bartender_details: (shift.bartenders || []).map((id: string) => ({
+        bartenders,
+        bartender_details: bartenders.map((id: string) => ({
           id,
-          ...bartenderProfiles[id],
+          ...profileMap[id],
         })),
       }
     })
@@ -142,7 +168,6 @@ export async function POST(request: Request) {
         state: state || "פתוחה",
         bartenders_required: bartenders_required || 3,
         notes,
-        bartenders: [],
       })
       .select()
       .single()

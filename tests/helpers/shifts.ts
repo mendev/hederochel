@@ -42,7 +42,6 @@ export async function insertTestShift(opts: InsertShiftOptions): Promise<number>
       shift_type: 'משמרת רגילה',
       state: opts.state,
       bartenders_required: 3,
-      bartenders: [],
     })
     .select('id')
     .single();
@@ -111,7 +110,6 @@ export async function insertCalendarTestShift(
       shift_type: 'משמרת רגילה',
       state: opts.state,
       bartenders_required: 3,
-      bartenders: [],
     })
     .select('id')
     .single();

@@ -62,17 +62,9 @@ test.describe('TSK-SHF-014 — State-based signup guard — PATCH /api/shifts/:i
   });
 
   test('full shift — returns 400 with "המשמרת מלאה"', async ({ page }) => {
+    // Shift is inserted with state 'מלאה'; the signup guard checks effective state
+    // which returns 'מלאה' for a future shift stored as full — no assignments needed.
     shiftId = await insertTestShift({ state: 'מלאה', startAt: FUTURE() });
-
-    // Set capacity to 1 and fill the slot with a placeholder UUID so the
-    // API's bartenders.length >= bartenders_required check triggers.
-    await adminClient()
-      .from('shifts')
-      .update({
-        bartenders_required: 1,
-        bartenders: ['00000000-0000-0000-0000-000000000001'],
-      })
-      .eq('id', shiftId);
 
     const res = await page.request.patch(`/api/shifts/${shiftId}`, {
       data: { action: 'signup' },
@@ -147,16 +139,9 @@ test.describe('TSK-SHF-014 — State-based signup guard — UI', () => {
   }
 
   test('full shift — "הרשם למשמרת" button is disabled', async ({ page }) => {
+    // Shift state 'מלאה' is enough — the dialog disables signup when state is not open.
     const { id, title } = await insertCalendarTestShift({ state: 'מלאה', startAt: FUTURE() });
     shiftId = id;
-    // Set to capacity
-    await adminClient()
-      .from('shifts')
-      .update({
-        bartenders_required: 1,
-        bartenders: ['00000000-0000-0000-0000-000000000001'],
-      })
-      .eq('id', id);
 
     await loginAsBartender(page);
     await openShiftDialog(page, title);

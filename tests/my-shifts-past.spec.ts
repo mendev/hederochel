@@ -54,7 +54,6 @@ async function insertPastShift(
       shift_type: 'משמרת רגילה',
       state: 'סגורה',
       bartenders_required: 3,
-      bartenders: [userId],
     })
     .select('id')
     .single();
@@ -66,6 +65,11 @@ async function insertPastShift(
     .from('shifts')
     .update({ start_at: d.toISOString() })
     .eq('id', data.id);
+
+  // Assign the user via the join table (bartenders column has been dropped)
+  await adminClient()
+    .from('shift_assignments')
+    .insert({ shift_id: data.id, user_id: userId });
 
   return { id: data.id as number, title, shiftDate };
 }

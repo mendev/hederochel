@@ -109,27 +109,37 @@ export async function PATCH(
         return NextResponse.json({ error: banError.message }, { status: 500 })
       }
 
-      // Remove user from all non-closed shifts
-      const { data: shifts, error: shiftsError } = await supabase
-        .from("shifts")
-        .select("*")
-        .neq("state", "סגורה")
-        .filter("bartenders", "cs", `["${id}"]`)
+      // Remove user from all non-closed shift assignments and revert full shifts to open
+      const { data: assignments, error: assignmentsError } = await supabase
+        .from("shift_assignments")
+        .select("shift_id")
+        .eq("user_id", id)
 
-      if (shiftsError) {
-        console.error("Error fetching shifts:", shiftsError)
-      } else if (shifts) {
-        for (const shift of shifts) {
-          const updatedBartenders = shift.bartenders.filter((bartenderId: string) => bartenderId !== id)
-          const newState = updatedBartenders.length >= shift.bartenders_required ? "מלאה" : "פתוחה"
+      if (assignmentsError) {
+        console.error("Error fetching assignments:", assignmentsError)
+      } else if (assignments && assignments.length > 0) {
+        const shiftIds = assignments.map((a: { shift_id: number }) => a.shift_id)
 
-          await supabase
-            .from("shifts")
-            .update({
-              bartenders: updatedBartenders,
-              state: newState,
-            })
-            .eq("id", shift.id)
+        // Find non-closed full shifts that will be affected
+        const { data: fullShifts } = await supabase
+          .from("shifts")
+          .select("id, bartenders_required")
+          .in("id", shiftIds)
+          .eq("state", "מלאה")
+
+        // Delete the user's assignments
+        await supabase.from("shift_assignments").delete().eq("user_id", id)
+
+        // Revert any full shifts that now fall below capacity
+        for (const shift of fullShifts || []) {
+          const { count } = await supabase
+            .from("shift_assignments")
+            .select("*", { count: "exact", head: true })
+            .eq("shift_id", shift.id)
+
+          if ((count || 0) < shift.bartenders_required) {
+            await supabase.from("shifts").update({ state: "פתוחה" }).eq("id", shift.id)
+          }
         }
       }
 
@@ -168,27 +178,37 @@ export async function DELETE(
     const supabase = createAdminClient()
     const { id } = await params
 
-    // Remove user from all non-closed shifts
-    const { data: shifts, error: shiftsError } = await supabase
-      .from("shifts")
-      .select("*")
-      .neq("state", "סגורה")
-      .filter("bartenders", "cs", `["${id}"]`)
+    // Remove user from all shift assignments and revert full shifts to open
+    const { data: assignments, error: assignmentsError } = await supabase
+      .from("shift_assignments")
+      .select("shift_id")
+      .eq("user_id", id)
 
-    if (shiftsError) {
-      console.error("Error fetching shifts:", shiftsError)
-    } else if (shifts) {
-      for (const shift of shifts) {
-        const updatedBartenders = shift.bartenders.filter((bartenderId: string) => bartenderId !== id)
-        const newState = updatedBartenders.length >= shift.bartenders_required ? "מלאה" : "פתוחה"
+    if (assignmentsError) {
+      console.error("Error fetching assignments:", assignmentsError)
+    } else if (assignments && assignments.length > 0) {
+      const shiftIds = assignments.map((a: { shift_id: number }) => a.shift_id)
 
-        await supabase
-          .from("shifts")
-          .update({
-            bartenders: updatedBartenders,
-            state: newState,
-          })
-          .eq("id", shift.id)
+      // Find full shifts that will be affected
+      const { data: fullShifts } = await supabase
+        .from("shifts")
+        .select("id, bartenders_required")
+        .in("id", shiftIds)
+        .eq("state", "מלאה")
+
+      // Delete the user's assignments
+      await supabase.from("shift_assignments").delete().eq("user_id", id)
+
+      // Revert any full shifts that now fall below capacity
+      for (const shift of fullShifts || []) {
+        const { count } = await supabase
+          .from("shift_assignments")
+          .select("*", { count: "exact", head: true })
+          .eq("shift_id", shift.id)
+
+        if ((count || 0) < shift.bartenders_required) {
+          await supabase.from("shifts").update({ state: "פתוחה" }).eq("id", shift.id)
+        }
       }
     }
 

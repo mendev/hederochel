@@ -59,39 +59,56 @@ export async function DELETE(
     }
 
     // 404 if bartender not assigned
-    const bartenders: string[] = shift.bartenders || []
-    if (!bartenders.includes(userId)) {
+    const { data: assignment } = await admin
+      .from("shift_assignments")
+      .select("id")
+      .eq("shift_id", id)
+      .eq("user_id", userId)
+      .maybeSingle()
+
+    if (!assignment) {
       return NextResponse.json({ error: "הברמן אינו רשום למשמרת" }, { status: 404 })
     }
 
-    // Remove bartender; revert to open if shift was full and count drops below capacity
-    const updatedBartenders = bartenders.filter((b) => b !== userId)
-    const newState =
-      shift.state === "מלאה" && updatedBartenders.length < shift.bartenders_required
-        ? "פתוחה"
-        : shift.state
+    // Delete the assignment
+    const { error: deleteError } = await admin
+      .from("shift_assignments")
+      .delete()
+      .eq("shift_id", id)
+      .eq("user_id", userId)
 
-    const { data: updatedShift, error: updateError } = await admin
-      .from("shifts")
-      .update({ bartenders: updatedBartenders, state: newState })
-      .eq("id", id)
-      .select()
-      .single()
-
-    if (updateError) {
-      console.error("Error updating shift:", updateError)
-      return NextResponse.json({ error: updateError.message }, { status: 500 })
+    if (deleteError) {
+      console.error("Error deleting assignment:", deleteError)
+      return NextResponse.json({ error: deleteError.message }, { status: 500 })
     }
 
-    // Fetch updated bartender profiles
-    let bartenderProfiles: Record<string, { full_name: string; role: string }> = {}
-    if (updatedBartenders.length > 0) {
+    // Revert state to open if shift was full and count drops below capacity
+    if (shift.state === "מלאה") {
+      const { count } = await admin
+        .from("shift_assignments")
+        .select("*", { count: "exact", head: true })
+        .eq("shift_id", id)
+
+      if ((count || 0) < shift.bartenders_required) {
+        await admin.from("shifts").update({ state: "פתוחה" }).eq("id", id)
+      }
+    }
+
+    // Build enriched response
+    const { data: assignments } = await admin
+      .from("shift_assignments")
+      .select("user_id")
+      .eq("shift_id", id)
+
+    const bartenderIds = (assignments || []).map((a: { user_id: string }) => a.user_id)
+
+    let profileMap: Record<string, { full_name: string; role: string }> = {}
+    if (bartenderIds.length > 0) {
       const { data: profiles } = await admin
         .from("profiles")
         .select("id, full_name, role")
-        .in("id", updatedBartenders)
-
-      bartenderProfiles = (profiles ?? []).reduce(
+        .in("id", bartenderIds)
+      profileMap = (profiles || []).reduce(
         (acc, p) => {
           acc[p.id] = { full_name: p.full_name, role: p.role }
           return acc
@@ -100,12 +117,16 @@ export async function DELETE(
       )
     }
 
+    // Re-fetch updated shift for state
+    const { data: updatedShift } = await admin.from("shifts").select("*").eq("id", id).single()
+
     const enrichedShift = {
       ...updatedShift,
-      shift_state: updatedShift.state,
-      bartender_details: updatedBartenders.map((bId: string) => ({
+      shift_state: updatedShift?.state,
+      bartenders: bartenderIds,
+      bartender_details: bartenderIds.map((bId: string) => ({
         id: bId,
-        ...bartenderProfiles[bId],
+        ...profileMap[bId],
       })),
     }
 
