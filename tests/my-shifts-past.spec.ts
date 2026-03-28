@@ -119,15 +119,19 @@ test.describe('TSK-SHF-009 — Past shifts list', () => {
 
     await loginAsBartender(page);
 
-    const historySection = page.locator('text=היסטוריית משמרות').locator('~ div').first();
-    const titles = historySection.locator('h3');
+    // Wait for both shifts to appear (data loaded)
+    await expect(page.getByRole('heading', { name: recent.title, level: 3 })).toBeVisible();
+    await expect(page.getByRole('heading', { name: older.title, level: 3 })).toBeVisible();
 
-    // Most recent shift must appear before the older one
-    const firstTitle  = await titles.nth(0).textContent();
-    const secondTitle = await titles.nth(1).textContent();
-
-    expect(firstTitle).toContain(recent.title);
-    expect(secondTitle).toContain(older.title);
+    // Assert relative order: recent must have a lower list index than older.
+    // Using allTextContents() is robust to extra shifts from concurrent tests
+    // (other parallel tests insert past shifts for the same user).
+    const allTitles = await page.locator('.opacity-80 h3').allTextContents();
+    const recentIdx = allTitles.findIndex((t) => t.includes(recent.title));
+    const olderIdx  = allTitles.findIndex((t) => t.includes(older.title));
+    expect(recentIdx).toBeGreaterThan(-1);
+    expect(olderIdx).toBeGreaterThan(-1);
+    expect(recentIdx).toBeLessThan(olderIdx);
   });
 
   test('each past shift row shows date/time, location, and state badge', async ({ page }) => {
@@ -136,7 +140,10 @@ test.describe('TSK-SHF-009 — Past shifts list', () => {
 
     await loginAsBartender(page);
 
-    const row = page.locator('div', { hasText: shift.title }).first();
+    // Past shift rows carry the "opacity-80" class — unique to the history list,
+    // not present on upcoming shift rows. This avoids resolving to the outer
+    // page wrapper which contains multiple <p> elements.
+    const row = page.locator('.opacity-80', { hasText: shift.title });
 
     // Date displayed (Hebrew locale format — look for at least the day number)
     await expect(row).toBeVisible();
@@ -152,7 +159,8 @@ test.describe('TSK-SHF-009 — Past shifts list', () => {
 
     await loginAsBartender(page);
 
-    const row = page.locator('div', { hasText: shift.title }).first();
+    const row = page.locator('.opacity-80', { hasText: shift.title });
+    await expect(row).toBeVisible();
     await expect(row.getByText('אין ח״וד עדיין')).toBeVisible();
   });
 
@@ -164,7 +172,7 @@ test.describe('TSK-SHF-009 — Past shifts list', () => {
 
     await loginAsBartender(page);
 
-    await page.locator('div', { hasText: shift.title }).first().click();
+    await page.locator('.opacity-80', { hasText: shift.title }).click();
 
     await expect(page.getByRole('dialog')).toBeVisible();
     await expect(page.getByRole('dialog')).toContainText(shift.title);
@@ -176,7 +184,7 @@ test.describe('TSK-SHF-009 — Past shifts list', () => {
 
     await loginAsBartender(page);
 
-    await page.locator('div', { hasText: shift.title }).first().click();
+    await page.locator('.opacity-80', { hasText: shift.title }).click();
 
     await expect(page.getByRole('dialog')).toBeVisible();
     await expect(

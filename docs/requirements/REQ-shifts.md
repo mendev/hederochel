@@ -10,7 +10,7 @@
 | REQ-SHF-006 | Bartenders can sign up for an open shift that has remaining capacity | High | done | US-SHF-006 |
 | REQ-SHF-007 | Bartenders can view their own upcoming shifts | High | done | US-SHF-007 |
 | REQ-SHF-008 | Bartenders can cancel their signup for a future shift | High | done | US-SHF-008 |
-| REQ-SHF-009 | Bartenders can view their past completed shifts | Medium | todo | US-SHF-009 |
+| REQ-SHF-009 | Bartenders can view their past completed shifts | Medium | done | US-SHF-009 |
 | REQ-SHF-010 | Shift transitions from open to full when all capacity slots are taken | High | done | US-SHF-010 |
 | REQ-SHF-011 | Shift transitions from full back to open if a bartender cancels | High | done | US-SHF-010 |
 | REQ-SHF-012 | Shifts in open/full state are presented as running once start_at (timestamptz) is reached — running state is derived at read time, never written to the DB state column | High | done | US-SHF-010 |
@@ -19,4 +19,5 @@
 | REQ-SHF-015 | Suspended users cannot sign up for any shift | Medium | done | US-USR-005, US-SHF-006 |
 | REQ-SHF-016 | Test all shifts flows automatically | High | todo | US-USR-001 |
 | REQ-SHF-017 | Managers can remove a registered bartender from a shift's bartender list (v.1: removal only — manual assignment by manager is v.2) | High | todo | US-011 |
-| REQ-SHF-018 | Bartenders can view shift details from "המשמרות שלי" in a detail popup | High | todo | US-005, US-020 |
+| REQ-SHF-018 | Bartenders can view shift details from "המשמרות שלי" in a detail popup | High | done | US-005, US-020 |
+| REQ-SHF-019 | Bartender assignments are stored in a relational join table (shift_assignments) not a JSONB column — required before reports domain | High | todo | US-011 |

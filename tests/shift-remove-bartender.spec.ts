@@ -7,12 +7,6 @@ import { insertCalendarTestShift, cleanupTestShift } from './helpers/shifts';
 // The edit dialog (ShiftFormDialog) shows a "ברמנים רשומים" section for open
 // and full shifts.  Managers can remove any registered bartender inline;
 // the dialog stays open; a toast confirms the action.
-//
-// NOTE — running-shift gap:
-//   The current component guards on formData.state === "פתוחה" | "מלאה" (stored
-//   DB state), so a running shift (stored "פתוחה", start_at in the past) still
-//   shows the section.  The test below that asserts hidden-for-running is written
-//   to spec and will fail until the component checks computeEffectiveState.
 
 const FUTURE = () => new Date(Date.now() + 24 * 60 * 60 * 1000);
 const PAST   = () => new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -129,10 +123,6 @@ test.describe('TSK-SHF-018 — Remove bartender UI', () => {
     await expect(page.locator('h4', { hasText: 'ברמנים רשומים' })).not.toBeVisible();
   });
 
-  // SPEC GAP: component checks formData.state (stored DB state) rather than
-  // effective state.  A running shift (stored "פתוחה", start_at in past) shows
-  // the section in the current build.  This test documents the correct spec
-  // behaviour and will fail until the component is updated.
   test('running shift — bartender section not shown', async ({ page }) => {
     const { id: userId } = await getTestUserProfile();
     const { id, title } = await insertCalendarTestShift({ state: 'פתוחה', startAt: PAST() });
@@ -196,6 +186,7 @@ test.describe('TSK-SHF-018 — Remove bartender UI', () => {
     await openEditDialog(page, title);
 
     await page.getByRole('button', { name: 'הסר' }).click();
+    // Toast confirms removal
     await expect(page.getByText('הברמן הוסר מהמשמרת')).toBeVisible();
 
     // Close dialog
