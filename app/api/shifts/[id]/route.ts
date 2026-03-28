@@ -2,7 +2,43 @@ import { NextResponse } from "next/server"
 import { createAdminClient, createServerClientWithCookies } from "@/lib/supabase/server"
 import { computeEffectiveState, type DBShift } from "@/app/api/shifts/route"
 
-// PATCH /api/shifts/[id] - Update a shift (e.g., signup)
+// Builds the enriched shift response object that includes bartenders (string[])
+// and bartender_details, reconstructed from shift_assignments.
+async function buildEnrichedShift(
+  admin: ReturnType<typeof createAdminClient>,
+  shiftId: string,
+) {
+  const [{ data: shift }, { data: assignments }] = await Promise.all([
+    admin.from("shifts").select("*").eq("id", shiftId).single(),
+    admin.from("shift_assignments").select("user_id").eq("shift_id", shiftId),
+  ])
+
+  const bartenderIds = (assignments || []).map((a: { user_id: string }) => a.user_id)
+
+  let profileMap: Record<string, { full_name: string; role: string }> = {}
+  if (bartenderIds.length > 0) {
+    const { data: profiles } = await admin
+      .from("profiles")
+      .select("id, full_name, role")
+      .in("id", bartenderIds)
+    profileMap = (profiles || []).reduce(
+      (acc, p) => {
+        acc[p.id] = { full_name: p.full_name, role: p.role }
+        return acc
+      },
+      {} as Record<string, { full_name: string; role: string }>,
+    )
+  }
+
+  return {
+    ...shift,
+    shift_state: shift?.state,
+    bartenders: bartenderIds,
+    bartender_details: bartenderIds.map((id: string) => ({ id, ...profileMap[id] })),
+  }
+}
+
+// PATCH /api/shifts/[id] - Update a shift (e.g., signup/signoff)
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -59,56 +95,42 @@ export async function PATCH(
         return NextResponse.json({ error: "המשמרת הסתיימה" }, { status: 400 })
       }
 
-      // Check if user is already signed up
-      const bartenders = shift.bartenders || []
-      if (bartenders.includes(user.id)) {
+      // Check if user is already signed up via shift_assignments
+      const { data: existingAssignment } = await adminClient
+        .from("shift_assignments")
+        .select("id")
+        .eq("shift_id", id)
+        .eq("user_id", user.id)
+        .maybeSingle()
+
+      if (existingAssignment) {
         return NextResponse.json({ error: "כבר רשום למשמרת" }, { status: 400 })
       }
 
-      // Add user to bartenders
-      const updatedBartenders = [...bartenders, user.id]
-      const newState = updatedBartenders.length >= shift.bartenders_required ? "מלאה" : shift.state
+      // Insert assignment
+      const { error: insertError } = await adminClient
+        .from("shift_assignments")
+        .insert({ shift_id: Number(id), user_id: user.id })
 
-      // Update shift
-      const { data: updatedShift, error: updateError } = await adminClient
-        .from("shifts")
-        .update({
-          bartenders: updatedBartenders,
-          state: newState,
-        })
-        .eq("id", id)
-        .select()
-        .single()
-
-      if (updateError) {
-        console.error("Error updating shift:", updateError)
-        return NextResponse.json({ error: updateError.message }, { status: 500 })
+      if (insertError) {
+        // Handle unique constraint violation (race condition)
+        if (insertError.code === "23505") {
+          return NextResponse.json({ error: "כבר רשום למשמרת" }, { status: 400 })
+        }
+        console.error("Error inserting assignment:", insertError)
+        return NextResponse.json({ error: insertError.message }, { status: 500 })
       }
 
-      // Fetch bartender details
-      const { data: profiles } = await adminClient
-        .from("profiles")
-        .select("id, full_name, role")
-        .in("id", updatedBartenders)
+      // Count assignments and update state to full if capacity reached
+      const { count } = await adminClient
+        .from("shift_assignments")
+        .select("*", { count: "exact", head: true })
+        .eq("shift_id", id)
 
-      const bartenderProfiles = profiles?.reduce(
-        (acc, p) => {
-          acc[p.id] = { full_name: p.full_name, role: p.role }
-          return acc
-        },
-        {} as Record<string, { full_name: string; role: string }>,
-      ) || {}
+      const newState = (count || 0) >= shift.bartenders_required ? "מלאה" : shift.state
+      await adminClient.from("shifts").update({ state: newState }).eq("id", id)
 
-      const enrichedShift = {
-        ...updatedShift,
-        shift_state: updatedShift.state,  // Map database 'state' to component 'shift_state'
-        bartender_details: updatedBartenders.map((id: string) => ({
-          id,
-          ...bartenderProfiles[id],
-        })),
-      }
-
-      return NextResponse.json({ shift: enrichedShift })
+      return NextResponse.json({ shift: await buildEnrichedShift(adminClient, id) })
     }
 
     if (action === "signoff") {
@@ -127,58 +149,34 @@ export async function PATCH(
       }
 
       // Check if user is signed up
-      const bartenders = shift.bartenders || []
-      if (!bartenders.includes(user.id)) {
+      const { data: assignment } = await signoffAdmin
+        .from("shift_assignments")
+        .select("id")
+        .eq("shift_id", id)
+        .eq("user_id", user.id)
+        .maybeSingle()
+
+      if (!assignment) {
         return NextResponse.json({ error: "לא רשום למשמרת" }, { status: 400 })
       }
 
-      // Remove user from bartenders
-      const updatedBartenders = bartenders.filter((id: string) => id !== user.id)
+      // Delete assignment
+      const { error: deleteError } = await signoffAdmin
+        .from("shift_assignments")
+        .delete()
+        .eq("shift_id", id)
+        .eq("user_id", user.id)
+
+      if (deleteError) {
+        console.error("Error deleting assignment:", deleteError)
+        return NextResponse.json({ error: deleteError.message }, { status: 500 })
+      }
+
+      // Revert state: closed stays closed, anything else reverts to open
       const newState = shift.state === "סגורה" ? "סגורה" : "פתוחה"
+      await signoffAdmin.from("shifts").update({ state: newState }).eq("id", id)
 
-      // Update shift
-      const { data: updatedShift, error: updateError } = await signoffAdmin
-        .from("shifts")
-        .update({
-          bartenders: updatedBartenders,
-          state: newState,
-        })
-        .eq("id", id)
-        .select()
-        .single()
-
-      if (updateError) {
-        console.error("Error updating shift:", updateError)
-        return NextResponse.json({ error: updateError.message }, { status: 500 })
-      }
-
-      // Fetch bartender details
-      let bartenderProfiles: Record<string, { full_name: string; role: string }> = {}
-      if (updatedBartenders.length > 0) {
-        const { data: profiles } = await signoffAdmin
-          .from("profiles")
-          .select("id, full_name, role")
-          .in("id", updatedBartenders)
-
-        bartenderProfiles = profiles?.reduce(
-          (acc, p) => {
-            acc[p.id] = { full_name: p.full_name, role: p.role }
-            return acc
-          },
-          {} as Record<string, { full_name: string; role: string }>,
-        ) || {}
-      }
-
-      const enrichedShift = {
-        ...updatedShift,
-        shift_state: updatedShift.state,
-        bartender_details: updatedBartenders.map((id: string) => ({
-          id,
-          ...bartenderProfiles[id],
-        })),
-      }
-
-      return NextResponse.json({ shift: enrichedShift })
+      return NextResponse.json({ shift: await buildEnrichedShift(signoffAdmin, id) })
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 })
@@ -282,7 +280,7 @@ export async function DELETE(
 
     const { id } = await params
 
-    // Delete shift
+    // Delete shift (shift_assignments rows are removed by ON DELETE CASCADE)
     const { error: deleteError } = await supabase
       .from("shifts")
       .delete()
