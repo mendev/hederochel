@@ -159,6 +159,11 @@ export function ShiftFormDialog({
     }
   }
 
+  // Use the enriched state from the shift prop (includes "running") rather than
+  // formData.state (the editable form field that reflects raw DB state).
+  const effectiveShiftState = shift ? (shift.state || shift.shift_state) : null
+  const showBartenderSection = effectiveShiftState === "פתוחה" || effectiveShiftState === "מלאה"
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md" dir="rtl">
@@ -284,7 +289,7 @@ export function ShiftFormDialog({
           </div>
 
           {/* Bartender removal — visible only for open and full shifts */}
-          {shift && (formData.state === "פתוחה" || formData.state === "מלאה") && (
+          {shift && showBartenderSection && (
             <div className="border-t pt-4">
               <h4 className="font-semibold mb-2">ברמנים רשומים</h4>
               {bartenderDetails.length === 0 ? (
