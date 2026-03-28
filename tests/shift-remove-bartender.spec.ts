@@ -193,9 +193,11 @@ test.describe('TSK-SHF-018 — Remove bartender UI', () => {
     await page.keyboard.press('Escape');
     await expect(page.getByRole('dialog')).not.toBeVisible();
 
-    // Reopen — the calendar re-fetches; the state field should now show "פתוחה"
+    // Reopen — the calendar re-fetches; the state field should now show "פתוחה".
+    // The state field is a Radix SelectTrigger (role="combobox") with no id attribute.
+    // The dialog has two comboboxes: nth(0)=shift_type, nth(1)=state.
     await openEditDialog(page, title);
-    const stateSelect = page.getByRole('dialog').locator('#state, [aria-label="מצב"]').first();
+    const stateSelect = page.getByRole('dialog').getByRole('combobox').nth(1);
     await expect(stateSelect).toContainText('פתוחה');
   });
 });
