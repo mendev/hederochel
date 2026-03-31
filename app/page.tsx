@@ -13,6 +13,7 @@ import ShiftsPage from "@/components/pages/ShiftsPage"
 import LoginPage from "@/components/pages/LoginPage"
 import MyShifts from "@/components/pages/MyShiftsPage"
 import ShiftManagmentPage from "@/components/pages/ShiftManagementPage"
+import ReportSettingsPage from "@/components/pages/ReportSettingsPage"
 import { useState, useEffect } from 'react';
 import DefaultPage from "@/components/pages/DefaultPage"
 
@@ -59,7 +60,7 @@ export default function Home() {
     // Page-level quick checks (UI level only), renderPage() will do final checks
     if ((page === 'shifts' || page === 'receipes' || page === 'my-shifts') && !isAuthenticated) {
       setActivePage('login');
-    } else if (page === 'reports' && !(role === 'shift-manager' || role === 'manager')) {
+    } else if (page === 'reports' && role !== 'manager') {
       setActivePage('login');
     } else {
       if (page === 'my-shifts') setMyShiftsKey((k) => k + 1);
@@ -88,8 +89,8 @@ export default function Home() {
         return <UnderConstructionPage />;
       case 'reports':
         if (!isAuthenticated) return <LoginPage />;
-        if (!(role === 'shift-manager' || role === 'manager')) return <LoginPage />;
-        return <UnderConstructionPage />;
+        if (role !== 'manager') return <LoginPage />;
+        return <ReportSettingsPage />;
       case 'shift-management':
         return <ShiftManagmentPage />;
       case 'users':
